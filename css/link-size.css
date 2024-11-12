@@ -4,3 +4,12 @@
     padding: calc(var(--link-size));
     margin: calc(-1 * var(--link-size));
 }
+
+.msg-chat .user {
+    position: relative;
+    z-index: 2;
+}
+
+.msg-chat a.embed-button {
+    z-index: 2;
+}
