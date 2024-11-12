@@ -2,6 +2,7 @@ let settings = {
     'better-icons': true,
     'full-logs-button': true,
     'bigscreen-menubar': true,
+    'bigscreen-controls': false,
     'link-size': 1.00,
     'link-size-debug': false
 };
@@ -268,7 +269,13 @@ const ProfileUI = {
                 el('label', { classes: ['user-info__label'], for: id }, label),
                 el('div', {classes: ['user-info__hint']}, hint),
                 el('div', {classes: ['user-info__field']},
-                    el('input', {type: 'checkbox', id, name: id, checked: settings[key] })
+                    el('input', {
+                        type: 'checkbox',
+                        id,
+                        name: id,
+                        checked: settings[key],
+                        events: { change: e => updateSetting(key, e.target.checked) }
+                    })
                 )
             );
         }
@@ -293,7 +300,8 @@ function injectProfilePage() {
             ),
             el('section', {},
                 ProfileUI.Content.heading('Big Screen', 'Settings that affect the Big Screen'),
-                ProfileUI.Content.checkbox('bigscreen-menubar', 'Cinema Mode Menu Bar', 'Slide out the menu bar on hover while in Cinema Mode')
+                ProfileUI.Content.checkbox('bigscreen-menubar', 'Cinema Mode Menu Bar', 'Slide out the menu bar on hover while in Cinema Mode'),
+                ProfileUI.Content.checkbox('bigscreen-controls', 'Cinema Mode Controls', 'Slide out the bottom stream controls on hover while in Cinema Mode')
             )
         ).build();
 
@@ -312,6 +320,7 @@ function load() {
     }
     if (PAGE_TYPE === PAGE_TYPES.BIGSCREEN) {
         injectStylesheet('css/bigscreen-menubar.css', settings['bigscreen-menubar']);
+        injectStylesheet('css/bigscreen-controls.css', settings['bigscreen-controls']);
     }
     if (PAGE_TYPE === PAGE_TYPES.SETTINGS) {
         injectProfilePage();

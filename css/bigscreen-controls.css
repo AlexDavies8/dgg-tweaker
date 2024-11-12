@@ -1,0 +1,32 @@
+.bigscreen .stream-panel--theater #stream-controls {
+    display: flex;
+    position: absolute;
+    left: 0px;
+    bottom: 0px;
+    padding: 2em;
+}
+.bigscreen .stream-panel--theater #stream-controls > * {
+    transform: translateY(calc(100% + 4em + 24px));
+    transition: transform 0.125s;
+}
+.bigscreen .stream-panel--theater #stream-controls:hover > * {
+    transform: translateY(0px);
+}
+
+@media (orientation: portrait), (max-width: 40rem) {
+    .bigscreen .stream-panel--theater #stream-controls > * {
+        transform: translateY(0px);
+        transition: none;
+    }
+    .bigscreen .stream-panel--theater #stream-controls {
+        background-color: #111113;
+        position: inherit;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1rem;
+        display: flex;
+        gap: 1rem;
+        z-index: 3;
+        width: 100%;
+    }
+}
