@@ -1,0 +1,45 @@
+.profile-content .user-info__field {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+.profile-content input[type="checkbox"] {
+    appearance: none;
+    background-color: #18191b;
+    margin: 0;
+    overflow: hidden;
+    font: inherit;
+    color: #edeef0;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #43484e;
+    border-radius: 0.625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 150ms ease 0s, border-color 150ms ease 0s;
+}
+.profile-content input[type="checkbox"]:hover {
+    border-color:  #0090ff;
+}
+.profile-content input[type="checkbox"]:checked {
+    background-color: #0090ff;
+    border-color:  #0090ff;
+}
+.profile-content section > div.user-info__section {
+    border: none;
+}
+.profile-content section > .profile-heading {
+    margin-bottom: 1.5rem;
+}
+
+input.form-control {
+    margin-left: 0.5em;
+    border-radius: .25em;
+    padding: .3em;
+}
+
+#chat-user-info #full-logs-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/logs-icon.svg') no-repeat center center;
+    background-size: contain;
+}

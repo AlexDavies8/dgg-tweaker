@@ -1,0 +1,6 @@
+.msg-chat .text a.externallink {
+    position: relative;
+    z-index: 1;
+    padding: calc(var(--link-size));
+    margin: calc(-1 * var(--link-size));
+}
