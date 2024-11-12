@@ -1,0 +1,60 @@
+.bigscreen .stream-panel--theater .header {
+    z-index: 25;
+}
+.bigscreen .stream-panel--theater .header .navbar-root {
+   transition: transform 0.125s;
+   transform: translateY(-100%);
+   background-color: #111113;
+}
+.bigscreen .stream-panel--theater .header:hover .navbar-root {
+    transform: translateY(0%);
+}
+
+#chat-user-info #full-logs-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/logs-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-user-info #logs-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/stalk-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-user-info #mute-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/mute-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-user-info #ignore-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/ignore-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-user-info #unignore-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/unignore-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-user-info #whisper-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/whisper-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-user-info #ban-user-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/ban-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-tools-wrap #chat-whisper-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/whisper-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-tools-wrap #chat-emoticon-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/emote-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-tools-wrap #chat-watching-focus-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/ignore-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-tools-wrap #chat-settings-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/settings-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+#chat-tools-wrap #chat-users-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/user-icon.svg') no-repeat center center;
+    background-size: contain;
+}
