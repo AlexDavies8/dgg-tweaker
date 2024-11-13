@@ -9,7 +9,7 @@ UI Tweaks for Destiny.gg
 All features can be toggled and adjusted in the DGG settings menu (same one as for profile settings).
 Chat-related settings can be edited live from the settings icon in chat.
 
-I recommend installing this as an unpacked extension, as it can take a long time for a new version to go through review, so the webstore may not be up-to-date.
 Chrome Webstore Link: https://chromewebstore.google.com/detail/dgg-tweaks/mojbdmnhbfbodmoidmcmahbcofceampd?authuser=0&hl=en-GB
 
+The hope is that extension eventually becomes redundant, as I've also submitted these features to the main DGG chat github, so they will hopefully be eventually included for everyone.
 If you have any feature suggestions, feel free to add a github issue or write a review on the chrome store.
