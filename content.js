@@ -173,7 +173,7 @@ const ChatUI = {
 
 function injectChatSettingsMenu() {
     const menu = el('div', { id: 'dgg-tweaks-settings' },
-        ChatUI.Settings.heading('DGG Tweaker'),
+        ChatUI.Settings.heading('DGG Tweaks'),
         ChatUI.Settings.checkbox('better-icons', 'Better Icons', 'Enable more visually consistent chat icons from FontAwesome'),
         ChatUI.Settings.checkbox('full-logs-button', 'Enable \'View Logs\' Button', 'Adds a button to the right click menu to search logs on rustlesearch.dev'),
         ChatUI.Settings.numberInput('link-size', 'Link Size', 'Increase the clickable area for links (no visual change)', '1.00', 1.00),
@@ -185,9 +185,9 @@ function injectChatSettingsMenu() {
 
 function injectNavbarSettingsButton() {
     const item = el('li', { classList: ['dropdown__item'] }, 
-        el('a', { classList: ['dropdown__link'], href: '/profile/?dgg-tweaker' },
+        el('a', { classList: ['dropdown__link'], href: '/profile/?dgg-tweaks' },
             fromHTML(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`),
-            " DGG Tweaker"
+            " DGG Tweaks"
         )
     ).build();
     document
@@ -200,8 +200,8 @@ function injectNavbarSettingsButton() {
 const ProfileUI = {
     navItem(active) {
         return el('li', { classes: active ? ['tab', 'tab--active'] : ['tab'] },
-            el('a', { classes: ['tab__link'], href: '/profile/?dgg-tweaker' },
-                'DGG Tweaker'
+            el('a', { classes: ['tab__link'], href: '/profile/?dgg-tweaks' },
+                'DGG Tweaks'
             )
         );
     },
@@ -283,7 +283,7 @@ const ProfileUI = {
 }
 
 function injectProfilePage() {
-    const active = window.location.search === '?dgg-tweaker';
+    const active = window.location.search === '?dgg-tweaks';
     document
         .querySelector('.tabs.tabs--vertical')
         .appendChild(ProfileUI.navItem(active).build());
@@ -331,7 +331,7 @@ function refresh() {
     if (PAGE_TYPE === PAGE_TYPES.CHAT) {
         injectStylesheet('css/better-icons.css', settings['better-icons']);
         injectStylesheet('css/link-size-debug.css', settings['link-size-debug']);
-        document.body.style.setProperty('--link-size', (settings['link-size'] - 1) + 'em');
+        document.body.style.setProperty('--link-size', settings['link-size'] - 1);
         injectFullLogs();
     }
 }

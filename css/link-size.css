@@ -1,8 +1,14 @@
 .msg-chat .text a.externallink {
     position: relative;
     z-index: 1;
-    padding: calc(var(--link-size));
-    margin: calc(-1 * var(--link-size));
+}
+
+.msg-chat .text a.externallink::before {
+    content: "";
+    position: absolute;
+    width: calc(100% + var(--link-size) * 1em);
+    height: calc(100% + var(--link-size) * 1em);
+    margin: calc(var(--link-size) * -0.5em + 2px);
 }
 
 .msg-chat .user {
