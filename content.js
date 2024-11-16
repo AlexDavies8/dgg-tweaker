@@ -396,6 +396,7 @@ async function onLoad() {
         injectStylesheet('css/link-size.css');
     } else {
         globalNavbarSettingsButton();
+        changelogDialog();
     }
     if (PAGE_TYPE === PAGE_TYPES.BIGSCREEN) {
         injectStylesheet('css/bigscreen-menubar.css', settings['bigscreen-menubar']);
@@ -404,9 +405,6 @@ async function onLoad() {
     if (PAGE_TYPE === PAGE_TYPES.SETTINGS) {
         profileSettingsNavbar();
         if (window.location.search === '?dgg-tweaks') profileSettingsMenu();
-    }
-    if (PAGE_TYPE === PAGE_TYPES.DEFAULT) {
-        changelogDialog();
     }
 }
 
