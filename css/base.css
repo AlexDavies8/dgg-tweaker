@@ -81,3 +81,13 @@ input.form-control {
 .dgg-tweaks-update-dialog .card__description p:first-child {
     margin-top: 0em;
 }
+
+#chat-tools-wrap #chat-aggregate-links-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/links-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+
+.dgg-tweaks-aggregate-links {
+    display: flex;
+    flex-direction: column;
+}

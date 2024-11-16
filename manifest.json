@@ -9,7 +9,11 @@
     "content_scripts": [
       {
         "matches": ["https://www.destiny.gg/*"],
-        "js": ["content.js"],
+        "js": [
+          "content.js",
+          "lib/popper.min.js",
+          "lib/tippy.min.js"
+        ],
         "all_frames": true
       }
     ],

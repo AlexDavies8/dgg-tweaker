@@ -49,7 +49,10 @@ function el(type, args, ...children) {
     const node = new HTMLNode(type, args, ...children);
     return node;
 }
-function fromHTML(htmlString) {
+function fromHTML(htmlElement) {
+    return HTMLNode.fromElement(htmlElement);
+}
+function fromHTMLString(htmlString) {
     const container = document.createElement('div');
     container.innerHTML = htmlString;
     let nodes = [];
@@ -67,6 +70,7 @@ const VERSION = chrome.runtime.getManifest().version;
 const INPUT_TYPES = {
     CHECKBOX: Symbol('checkbox'),
     NUMBER_FIELD: Symbol('number_field'),
+    SELECT: Symbol('select'),
     BUTTON: Symbol('button')
 }
 const settingsMenuDef = [
@@ -75,9 +79,10 @@ const settingsMenuDef = [
         subheading: "Settings that affect DGG Chat (including embeds)",
         fields: [
             [INPUT_TYPES.CHECKBOX, 'better-icons', "Better Icons", "Enable more visually consistent chat icons from FontAwesome"],
-            [INPUT_TYPES.CHECKBOX, 'full-logs-button', "Enable \'View Logs\' Button", "Adds a button to the right click menu to search logs on rustlesearch.dev"],
+            [INPUT_TYPES.CHECKBOX, 'full-logs-button', "Enable 'View Logs' Button", "Adds a button to the right click menu to search logs on rustlesearch.dev"],
             [INPUT_TYPES.NUMBER_FIELD, 'link-size', "Link Size", 'Increase the clickable area for links (no visual change)', "1.00", 1.00],
             [INPUT_TYPES.CHECKBOX, 'link-size-debug', "Visualise Link Size", "Show an outline around the clickable area (debug option)"],
+            [INPUT_TYPES.SELECT, 'aggregate-links-button', "'Aggregate Links' Button", "Mode for a new 'Aggregate Links' button in chat", [['off', 'Disabled'], ['link', 'Links Only'], ['name', 'Include Usernames'], ['full', 'Full Messages']]],
         ]
     },
     {
@@ -105,7 +110,8 @@ let settings = {
     'bigscreen-menubar': true,
     'bigscreen-controls': false,
     'link-size': 1.00,
-    'link-size-debug': false
+    'link-size-debug': false,
+    'aggregate-links-button': true
 };
 
 function changeSetting(key, value) {
@@ -164,9 +170,20 @@ const CHAT_UI = {
             max,
             placeholder,
             events: {
-                change: e => updateSetting(key, parseFloat(e.target.value))
+                change: e => changeSetting(key, parseFloat(e.target.value))
             }
         })
+    ),
+    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['form-group'] },
+        el('label', { title: description, for: 'dgg-tweaker-' + key }, label),
+        el('select', {
+            classes: ['form-control'],
+            id: 'dgg-tweaker-' + key,
+            name: 'dgg-tweaker-' + key,
+            events: {
+                change: e => changeSetting(key, e.target.value)
+            }
+        }, ...options.map(option => el('option', { value: option[0], selected: option[0] === settings[key] ? true : undefined }, option[1])))
     )
 }
 
@@ -180,7 +197,7 @@ const PROFILE_UI = {
                 id: 'dgg-tweaker-' + key,
                 name: 'dgg-tweaker-' + key,
                 checked: settings[key],
-                events: { change: e => updateSetting(key, e.target.checked) }
+                events: { change: e => changeSetting(key, e.target.checked) }
             })
         )
     ),
@@ -200,7 +217,7 @@ const PROFILE_UI = {
                             max,
                             placeholder,
                             events: {
-                                change: e => updateSetting(key, parseFloat(e.target.value))
+                                change: e => changeSetting(key, parseFloat(e.target.value))
                             }
                         })
                     )
@@ -221,7 +238,27 @@ const PROFILE_UI = {
                 value: buttonText
             })
         )
-    )
+    ),
+    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['user-info__section'] }, 
+        el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
+        el('div', {classes: ['user-info__hint']}, description),
+        el('div', {classes: ['user-info__field']},
+            el('div', {classes:['input']},
+                el('div', {classes:['input__area']},
+                    el('div', {classes:['input__container']},
+                        el('select', {
+                            classes: ['form-control'],
+                            id: 'dgg-tweaker-' + key,
+                            name: 'dgg-tweaker-' + key,
+                            events: {
+                                change: e => changeSetting(key, e.target.value)
+                            }
+                        }, ...options.map(option => el('option', { value: option[0], selected: option[0] === settings[key] ? true : undefined }, option[1])))
+                    )
+                )
+            )
+        )
+    ),
 }
 
 function renderField(context, field) {
@@ -271,7 +308,7 @@ function profileSettingsNavbar() {
 function globalNavbarSettingsButton() {
     const item = el('li', { classList: ['dropdown__item'] }, 
         el('a', { classList: ['dropdown__link'], href: '/profile/?dgg-tweaks' },
-            fromHTML(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`),
+            fromHTMLString(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`),
             " DGG Tweaks"
         )
     ).build();
@@ -299,7 +336,7 @@ async function showChangelogDialog(fromVersion, toVersion) {
             .filter(entry => compareVersions(String(entry[0]), fromVersion) > -1)
             .filter(entry => compareVersions(String(entry[0]), toVersion) < 1)
             .reverse()
-            .map(entry => [entry[0], el('p', {}, fromHTML(entry[1]))])
+            .map(entry => [entry[0], el('p', {}, fromHTMLString(entry[1]))])
             .map(([k, v], idx) => idx > 0 ? [el('div', {classes:['card__header']}, el('span', {classes:['card__subtitle']}, `Version ${k}`)), v] : v)
             .flat(Infinity);
         if (!description.length) return;
@@ -388,6 +425,61 @@ function registerFullLogsButton() {
     }
 }
 
+// LINK AGGREGATION BUTTON
+function openLinkAggregatorPopup() {
+    const linksRaw = document.querySelectorAll('.externallink');
+    const urls = new Set();
+    let messages = [];
+    for (const linkEl of linksRaw) {
+        if (urls.has(linkEl.href)) continue;
+
+        const message = linkEl.closest('div.msg-user');
+        //const username = linkEl.closest('div.msg-user')?.querySelector('a.user')?.textContent;
+        if (!message) continue;
+
+        urls.add(linkEl.href);
+        ['off', 'Disabled'], ['link', 'Links Only'], ['name', 'Include Usernames'], ['full', 'Full Messages']
+        if (settings['aggregate-links-button'] === 'link') {
+            messages.push(fromHTML(linkEl.cloneNode(true)));
+        } else if (settings['aggregate-links-button'] === 'name') {
+            const cloned = message.cloneNode(true);
+            cloned.querySelector('.text').replaceWith(linkEl.cloneNode(true));
+            messages.push(fromHTML(cloned));
+        } else {
+            messages.push(fromHTML(message.cloneNode(true)));
+        }
+    }
+    const linkButton = document.getElementById('chat-aggregate-links-btn');
+    var popupContent = el('div', { classes: ['dgg-tweaks-aggregate-links'] }, ...messages).build();
+    if (messages.length) linkButton._tippy.setContent(popupContent.outerHTML);
+    else linkButton._tippy.setContent("<div class='dgg-tweaks-aggregate-links'>No links found in chat</div>");
+    
+    if (linkButton._tippy.state.isShown) linkButton._tippy.hide();
+    else linkButton._tippy.show();
+}
+
+function addLinkAggregationButton() {
+    var linkButton = document.getElementById('chat-aggregate-links-btn');
+    if (settings["aggregate-links-button"] === 'off') linkButton?.remove();
+    else {
+        if (!linkButton) {
+            const focusButton = document.getElementById('chat-watching-focus-btn');
+            linkButton = focusButton.cloneNode(true);
+            linkButton.id = 'chat-aggregate-links-btn';
+            focusButton.before(linkButton);
+            linkButton.addEventListener('click', openLinkAggregatorPopup);
+            linkButton.removeAttribute('data-tippy-content');
+            tippy(linkButton, {
+                trigger: 'click',
+                interactive: true,
+                allowHTML: true,
+                content: "",
+                maxWidth: 'none',
+            });
+        }
+    }
+}
+
 // MAIN
 
 async function onLoad() {
@@ -414,6 +506,7 @@ async function onSettingsChanged() {
         injectStylesheet('css/link-size-debug.css', settings['link-size-debug']);
         document.body.style.setProperty('--link-size', settings['link-size'] - 1);
         registerFullLogsButton();
+        addLinkAggregationButton();
     }
 }
 
