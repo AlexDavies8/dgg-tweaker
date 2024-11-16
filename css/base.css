@@ -43,3 +43,41 @@ input.form-control {
     background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/logs-icon.svg') no-repeat center center;
     background-size: contain;
 }
+
+.dgg-tweaks-update-dialog {
+    position: absolute;
+    top: 50%;
+    bottom: 50%;
+    left: 50%;
+    right: 50%;
+    width: max-content;
+    transform: translate(-50%);
+    color: white;
+    font: 600 2.25rem/2.25rem Poppins,system-ui,sans-serif;
+}
+.dgg-tweaks-update-dialog:focus-visible {
+    outline: none;
+}.dgg-tweaks-update-dialog button:focus-visible {
+    outline: none;
+}
+.dgg-tweaks-update-dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.8);
+}
+.dgg-tweaks-update-dialog ul {
+    list-style: inside;
+}
+.dgg-tweaks-update-dialog .card__description {
+    max-width: 32em;
+    max-height: 32em;
+    overflow-y: auto;
+}
+.dgg-tweaks-update-dialog .card__description p {
+    margin-top: 0.5em;
+    margin-bottom: 1.5em;
+}
+.dgg-tweaks-update-dialog .card__description p:last-child {
+    margin-bottom: 0em;
+}
+.dgg-tweaks-update-dialog .card__description p:first-child {
+    margin-top: 0em;
+}

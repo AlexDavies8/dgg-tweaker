@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "DGG Tweaks",
-    "version": "1.4",
+    "version": "1.5",
     "description": "UI Tweaks for destiny.gg",
     "permissions": [
       "storage"
@@ -16,7 +16,7 @@
     "web_accessible_resources": [
       {
         "matches": ["https://www.destiny.gg/*"],
-        "resources": ["css/*.css", "icons/*"],
+        "resources": ["css/*.css", "icons/*", "changelogs.json"],
         "all_frames": true
       }
     ],
