@@ -609,7 +609,7 @@ function renderChatMessage(str) {
     if (htmlString.startsWith('/me ')) htmlString = htmlString.slice(4);
 
     // Greentext
-    if (str.indexOf('&gt;') === 0) htmlString = `<span class="greentext">${htmlString}</span>`;
+    if (str.indexOf('>') === 0) htmlString = `<span class="greentext">${htmlString}</span>`;
 
     // Emotes
     const regex = getEmoteRegex();
@@ -648,9 +648,11 @@ async function injectRustleLogs() {
         messageTemplate.after(messageEl);
         if (!currentEl && messageEl.textContent === templateText) currentEl = messageEl;
     }
-    messageTemplate.remove();
     if (!currentEl) messageContainer.scrollTop = messageContainer.scrollHeight;
-    else currentEl.scrollIntoView();
+    else {
+        messageTemplate.remove();
+        currentEl.scrollIntoView({block: "nearest", inline: "nearest"});
+    }
 }
 function waitForCSS(href) {
     return new Promise(resolve => {
