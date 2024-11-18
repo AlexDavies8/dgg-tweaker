@@ -1,9 +1,7 @@
 UI Tweaks for Destiny.gg
 
-- Updated icons for chat
 - Hover over the top of the screen while in Cinema Mode to show the menu bar
 - Hover over the bottom of the screen while in Cinema Mode to show stream controls
-- Direct link to rustlesearch.dev logs in the right click menu in chat
 - Increase link hitbox size
 
 All features can be toggled and adjusted in the DGG settings menu (same one as for profile settings).

@@ -5,5 +5,5 @@
     "1.3" : "Link hitbox bugfix and new extension icon",
     "1.4" : "Link hitbox bugfix",
     "1.5" : "Settings bugfix and new link aggregator feature",
-    "2.0" : "The following features got merged into official DGG chat, so have been removed:\n<ul><li>Better Icons</li><li>'View Logs' Button</li></ul>This extension has also been rewritten under the hood, so adding new features should be much easier than before"
+    "1.6" : "The following features got merged into official DGG chat, so have been removed:\n<ul><li>Better Icons</li><li>'View Logs' Button</li></ul>This extension has also been rewritten under the hood, so adding new features should be much easier than before"
 }

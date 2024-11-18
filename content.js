@@ -78,8 +78,6 @@ const settingsMenuDef = [
         heading: "Chat",
         subheading: "Settings that affect DGG Chat (including embeds)",
         fields: [
-            [INPUT_TYPES.CHECKBOX, 'better-icons', "Better Icons", "Enable more visually consistent chat icons from FontAwesome"],
-            [INPUT_TYPES.CHECKBOX, 'full-logs-button', "Enable 'View Logs' Button", "Adds a button to the right click menu to search logs on rustlesearch.dev"],
             [INPUT_TYPES.NUMBER_FIELD, 'link-size', "Link Size", 'Increase the clickable area for links (no visual change)', "1.00", 1.00],
             [INPUT_TYPES.CHECKBOX, 'link-size-debug', "Visualise Link Size", "Show an outline around the clickable area (debug option)"],
             [INPUT_TYPES.SELECT, 'aggregate-links-button', "'Aggregate Links' Button", "Mode for a new 'Aggregate Links' button in chat", [['off', 'Disabled'], ['link', 'Links Only'], ['name', 'Include Usernames'], ['full', 'Full Messages']]],
@@ -105,8 +103,6 @@ const settingsMenuDef = [
 
 let settings = {
     'show-changelogs': true,
-    'better-icons': true,
-    'full-logs-button': true,
     'bigscreen-menubar': true,
     'bigscreen-controls': false,
     'link-size': 1.00,
@@ -389,42 +385,6 @@ function injectStylesheet(url, enabled = true) {
     document.head.appendChild(link);
 }
 
-// USER INFO MENU
-
-function injectLogsButton() {
-    var button = document.getElementById('full-logs-user-btn');
-    if (!button) {
-        var to_copy = document.getElementById('logs-user-btn');
-        button = to_copy.cloneNode(true);
-        to_copy.parentElement.appendChild(button);
-        button.id = 'full-logs-user-btn';
-        button.title = 'See Logs';
-        button.target = '_blank';
-    }
-    var username = document.querySelector('#chat-user-info .username').textContent;
-    button.href = `https://rustlesearch.dev/?username=${encodeURIComponent(username)}&channel=Destinygg`;
-}
-
-let info_active = false;
-const attrObserver = new MutationObserver((mutations) => {
-    mutations.forEach(mu => {
-        if (mu.type !== 'attributes' && mu.attributeName !== 'class') return;
-        const new_info_active = mu.target.classList.contains('active');
-        if (new_info_active && !info_active) injectLogsButton();
-        info_active = new_info_active;
-    });
-});
-
-function registerFullLogsButton() {
-    if (settings['full-logs-button']) {
-        const chat_info_box = document.getElementById('chat-user-info');
-        if (chat_info_box) attrObserver.observe(document.getElementById('chat-user-info'), { attributes: true });
-    } else {
-        attrObserver.disconnect();
-        document.getElementById('full-logs-user-btn')?.remove();
-    }
-}
-
 // LINK AGGREGATION BUTTON
 function openLinkAggregatorPopup() {
     const linksRaw = document.querySelectorAll('.externallink');
@@ -502,10 +462,8 @@ async function onLoad() {
 
 async function onSettingsChanged() {
     if (PAGE_TYPE === PAGE_TYPES.CHAT) {
-        injectStylesheet('css/better-icons.css', settings['better-icons']);
         injectStylesheet('css/link-size-debug.css', settings['link-size-debug']);
         document.body.style.setProperty('--link-size', settings['link-size'] - 1);
-        registerFullLogsButton();
         addLinkAggregationButton();
     }
 }

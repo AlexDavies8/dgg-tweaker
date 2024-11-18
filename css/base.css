@@ -39,11 +39,6 @@ input.form-control {
     padding: .3em;
 }
 
-#chat-user-info #full-logs-user-btn .btn-icon.btn-icon {
-    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/logs-icon.svg') no-repeat center center;
-    background-size: contain;
-}
-
 .dgg-tweaks-update-dialog {
     position: absolute;
     top: 50%;
