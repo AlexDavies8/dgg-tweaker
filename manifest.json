@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "DGG Tweaks",
-    "version": "1.6",
+    "version": "1.7",
     "description": "UI Tweaks for destiny.gg",
     "permissions": [
       "storage"
@@ -12,7 +12,8 @@
         "js": [
           "content.js",
           "lib/popper.min.js",
-          "lib/tippy.min.js"
+          "lib/tippy.min.js",
+          "lib/regex.js"
         ],
         "all_frames": true
       }

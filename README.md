@@ -1,5 +1,6 @@
 UI Tweaks for Destiny.gg
 
+- Show chat history from RustleSearch.dev directly in chat
 - Hover over the top of the screen while in Cinema Mode to show the menu bar
 - Hover over the bottom of the screen while in Cinema Mode to show stream controls
 - Increase link hitbox size
