@@ -10,5 +10,4 @@ Chat-related settings can be edited live from the settings icon in chat.
 
 Chrome Webstore Link: https://chromewebstore.google.com/detail/dgg-tweaks/mojbdmnhbfbodmoidmcmahbcofceampd?authuser=0&hl=en-GB
 
-The hope is that extension eventually becomes redundant, as I've also submitted these features to the main DGG chat github, so they will hopefully be eventually included for everyone.
 If you have any feature suggestions, feel free to add a github issue or write a review on the chrome store.
