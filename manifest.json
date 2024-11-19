@@ -10,10 +10,11 @@
       {
         "matches": ["https://www.destiny.gg/*"],
         "js": [
-          "content.js",
           "lib/popper.min.js",
           "lib/tippy.min.js",
-          "lib/regex.js"
+          "lib/util.js",
+          "lib/regex.js",
+          "content.js"
         ],
         "all_frames": true
       }

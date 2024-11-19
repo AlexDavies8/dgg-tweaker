@@ -1,68 +1,3 @@
-// Basic Declarative Markup to make HTML in JS
-class HTMLNode {
-    constructor(type, args = {}, ...children) {
-        if (type === undefined) {
-            this._args = {};
-            this._children = [];
-        } else {
-            this._type = type;
-            this._args = args;
-            this._children = children.flat(Infinity);
-        }
-    }
-
-    static fromElement(element) {
-        const node = new HTMLNode();
-        node._rawEl = element;
-        return node;
-    }
-
-    build() {
-        const el = this._rawEl ?? document.createElement(this._type);
-        for (const key in this._args) {
-            if (key === 'classes') el.classList.add(...this._args[key]);
-            else if (key === 'events') {
-                for (const type in this._args[key]) {
-                    el.addEventListener(type, this._args[key][type]);
-                }
-            }
-            else el[key] = this._args[key];
-        }
-        for (const child of this._children) {
-            if (typeof child === 'string') el.appendChild(document.createTextNode(child));
-            else el.appendChild(child.build());
-        }
-        return el;
-    }
-
-    children(...children) {
-        this._children.push(children.flat(Infinity));
-        return this;
-    }
-
-    attrs(attrs) {
-        Object.assign(this.args, attrs);
-        return this;
-    }
-}
-function el(type, args, ...children) {
-    const node = new HTMLNode(type, args, ...children);
-    return node;
-}
-function fromHTML(htmlElement) {
-    return HTMLNode.fromElement(htmlElement);
-}
-function fromHTMLString(htmlString) {
-    const container = document.createElement('div');
-    container.innerHTML = htmlString;
-    let nodes = [];
-    for (const element of container.childNodes) {
-        nodes.push(HTMLNode.fromElement(element));
-    }
-    container.remove();
-    return nodes;
-}
-
 // SETTINGS
 
 const VERSION = chrome.runtime.getManifest().version;
@@ -369,24 +304,6 @@ async function changelogDialog() {
     if (settings['show-changelogs']) showChangelogDialog(prevVersion, VERSION);
 }
 
-// STYLESHEETS
-
-function injectStylesheet(url, enabled = true) {
-    const href = chrome.runtime.getURL(url);
-    const existingLink = document.querySelector(`link[href='${href}']`);
-    if (existingLink !== null) {
-        if (enabled) return;
-        else existingLink.remove();
-    }
-    if (!enabled) return;
-
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.type = 'text/css';
-    link.href = href;
-    document.head.appendChild(link);
-}
-
 // LINK AGGREGATION BUTTON
 function openLinkAggregatorPopup() {
     const linksRaw = document.querySelectorAll('.externallink');
@@ -443,194 +360,6 @@ function addLinkAggregationButton() {
 }
 
 // INLINE RUSTLESEARCH
-let emoteRegex;
-let emotes;
-function getEmotes() {
-    if (!emotes) {
-        emoteEls = Array.from(document.querySelectorAll('.emote-item')).map(emoteItem => emoteItem.firstChild);
-        emotes = {};
-        for (const emoteEl of emoteEls) {
-            emotes[emoteEl.textContent] = emoteEl.className;
-        }
-    }
-    return emotes;
-}
-function getEmoteRegex() {
-    if (!emoteRegex) {
-        const emotes = getEmotes();
-        emoteRegex = new RegExp(`(^|\\s)(${Object.keys(emotes).join('|')})(?=$|\\s)`, 'gm');
-    }
-    return emoteRegex;
-}
-
-// Stolen directly from hashlinkconverter.js in dgg chat-gui
-class HashLinkConverter {
-    constructor() {
-        this.hasHttp = /^http[s]?:\/{0,2}/;
-        this.youtubeRegex = /^(?:shorts|live|embed)\/([A-Za-z0-9-_]{11})$/;
-        this.twitchClipRegex = /^[^/]+\/clip\/([A-Za-z0-9-_]*)$/;
-        this.twitchVODRegex = /^videos\/(\d+)$/;
-        this.rumbleEmbedRegex = /^embed\/([a-z0-9]+)\/?$/;
-    }
-
-    convert(urlString) {
-        if (!urlString) {
-            throw new Error(MISSING_ARG_ERROR);
-        }
-        const url = new URL(
-            // if a url doesn't have a protocol, URL throws an error
-            urlString.match(this.hasHttp) ? urlString : `https://${urlString}`,
-        );
-        const pathname = url.pathname.slice(1);
-        let match;
-        let videoId;
-        let timestamp;
-        switch (url.hostname) {
-            case 'www.twitch.tv':
-            case 'twitch.tv':
-                match = pathname.match(this.twitchClipRegex);
-                if (match) {
-                    return `#twitch-clip/${match[1]}`;
-                }
-                match = pathname.match(this.twitchVODRegex);
-                if (match) {
-                    return `#twitch-vod/${match[1]}`;
-                }
-                return `#twitch/${pathname}`;
-            case 'clips.twitch.tv':
-                return `#twitch-clip/${pathname}`;
-            case 'www.youtube.com':
-            case 'youtube.com':
-                match = pathname.match(this.youtubeRegex);
-                timestamp = url.searchParams.get('t');
-                videoId = url.searchParams.get('v') ?? match?.[1];
-                if (!videoId) {
-                    throw new Error(MISSING_VIDEO_ID_ERROR);
-                }
-                return timestamp
-                    ? `#youtube/${videoId}?t=${timestamp}`
-                    : `#youtube/${videoId}`;
-            case 'www.youtu.be':
-            case 'youtu.be':
-                timestamp = url.searchParams.get('t');
-                return timestamp
-                    ? `#youtube/${pathname}?t=${timestamp}`
-                    : `#youtube/${pathname}`;
-            case 'www.rumble.com':
-            case 'rumble.com':
-                match = pathname.match(this.rumbleEmbedRegex);
-                if (match) {
-                    return `#rumble/${match[1]}`;
-                }
-                throw new Error(RUMBLE_EMBED_ERROR);
-            case 'www.kick.com':
-            case 'kick.com':
-                if (url.searchParams.has('clip') || pathname.startsWith('video/')) {
-                    throw new Error(INVALID_LINK_ERROR);
-                }
-                return `#kick/${pathname}`;
-            default:
-                throw new Error(INVALID_LINK_ERROR);
-        }
-    }
-}
-const hashlinkConverter = new HashLinkConverter();
-
-function encodeLinkUrl(value) {
-    return value
-        .replace(/&/g, '&amp;')
-        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, (v) => {
-        const hi = v.charCodeAt(0);
-        const low = v.charCodeAt(1);
-        return `&#${(hi - 0xd800) * 0x400 + (low - 0xdc00) + 0x10000};`;
-        })
-        .replace(/([^#-~| |!])/g, (v) => `&#${v.charCodeAt(0)};`)
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-}
-function renderUrlEmbed(str) {
-    let extraclass = '';
-
-    if (/\b(?:NSFL)\b/i.test(str)) extraclass = 'nsfl-link';
-    else if (/\b(?:NSFW)\b/i.test(str)) extraclass = 'nsfw-link';
-    else if (/\b(?:SPOILERS)\b/i.test(str)) extraclass = 'spoilers-link';
-
-    return str.replace(LINKREGEX, (url, scheme) => {
-      const decodedUrl = url;
-      const m = decodedUrl.match(LINKREGEX);
-      if (m) {
-        const normalizedUrl = encodeLinkUrl(normalizeUrl(m[0]));
-
-        let embedHashLink = '';
-        try {
-          embedHashLink = hashlinkConverter.convert(decodedUrl);
-        } catch {}
-
-        const maxUrlLength = 90;
-        let urlText = normalizedUrl;
-        if (
-          !(document.querySelector('input[name="showentireurl"]')?.checked ?? false) &&
-          urlText.length > maxUrlLength
-        ) {
-          urlText = `${urlText.slice(0, 40)}...${urlText.slice(-40)}`;
-        }
-
-        const extra = encodeLinkUrl(decodedUrl.substring(m[0].length));
-        const href = `${scheme ? '' : 'http://'}${normalizedUrl}`;
-
-        const embedTarget = window.top !== this ? '_top' : '_blank';
-        const embedUrl = window.location.origin + '/bigscreen' + embedHashLink;
-        return embedHashLink
-          ? `<a target="_blank" class="externallink ${extraclass}" href="${href}" rel="nofollow">${urlText}</a><a target="${embedTarget}" class="embed-button" href="${embedUrl}"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="14.4" viewBox="0 0 640 512"><path d="M64 64V352H576V64H64zM0 64C0 28.7 28.7 0 64 0H576c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64zM128 448H512c17.7 0 32 14.3 32 32s-14.3 32-32 32H128c-17.7 0-32-14.3-32-32s14.3-32 32-32z"  fill="#fff"/></svg></a>`
-          : `<a target="_blank" class="externallink ${extraclass}" href="${href}" rel="nofollow">${urlText}</a>${extra}`;
-      }
-      return url;
-    });
-  }
-function normalizeUrl(url) {
-    if (/(x|twitter)\.com\/\w{1,15}\/status\/\d{2,19}\?/i.test(url)) return url.split('?')[0];
-    if (/^(?:(?:https|http):\/\/)?(?:www\.)?youtu(?:be\.com|\.be)/i.test(url)) {
-        try {
-            const ytLink = new URL(url);
-            ytLink.searchParams.delete('si');
-            return ytLink.href;
-        } catch {
-            return url;
-        }
-    }
-    return url;
-}
-
-const embedRegex = /(^|\s)(#(kick|twitch|twitch-vod|twitch-clip|youtube|youtube-live|facebook|rumble|vimeo)\/([\w\d]{3,64}\/videos\/\d{10,20}|[\w-]{3,64}|\w{7}\/\?pub=\w{5})(?:\?t=(\d+)s?)?)\b/g;
-function renderChatMessage(str) {
-    let htmlString = str;
-
-    if (htmlString.startsWith('/me ')) htmlString = htmlString.slice(4);
-
-    // Greentext
-    if (str.indexOf('>') === 0) htmlString = `<span class="greentext">${htmlString}</span>`;
-
-    // Emotes
-    const regex = getEmoteRegex();
-    htmlString = htmlString.replace(regex, '$1<div title="$2" class="emote $2">$2 </div>');
-
-    // Slash embeds
-    let extraclass = '';
-    if (/\b(?:NSFL)\b/i.test(str)) extraclass = 'nsfl-link';
-    else if (/\b(?:NSFW)\b/i.test(str)) extraclass = 'nsfw-link';
-    else if (/\b(?:SPOILERS)\b/i.test(str)) extraclass = 'spoilers-link';
-
-    const target = window.top !== this ? '_top' : '_blank';
-    const baseUrl = window.location.origin + '/bigscreen';
-    htmlString = htmlString.replace(embedRegex, `$1<a class="externallink bookmarklink ${extraclass}" href="${baseUrl}$2" target="${target}">$2</a>`);
-
-    // Links
-    htmlString = renderUrlEmbed(htmlString);
-
-    return htmlString;
-}
-
 async function injectRustleLogs() {
     const infoBox = document.querySelector('#chat-user-info');
     const username = infoBox.querySelector('.username').textContent;
@@ -642,7 +371,7 @@ async function injectRustleLogs() {
     const templateText = messageTemplate.textContent;
     let currentEl;
     for (const message of messages) {
-        const innerHTML = renderChatMessage(message.text);
+        const innerHTML = REGEXES.renderChatMessage(message.text);
         const messageEl = messageTemplate.cloneNode(true);
         messageEl.querySelector('.text').innerHTML = innerHTML;
         messageTemplate.after(messageEl);
@@ -654,29 +383,8 @@ async function injectRustleLogs() {
         currentEl.scrollIntoView({block: "nearest", inline: "nearest"});
     }
 }
-function waitForCSS(href) {
-    return new Promise(resolve => {
-        const observer = new MutationObserver(() => {
-            const linkElement = Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find(link => link.href.includes(href));
-
-            if (linkElement) {
-                if (linkElement.sheet) {
-                    observer.disconnect();
-                    resolve();
-                } else {
-                    linkElement.addEventListener('load', () => {
-                        observer.disconnect();
-                        resolve();
-                    });
-                }
-            }
-        });
-
-        observer.observe(document.head || document.documentElement, { childList: true, subtree: true });
-    });
-}
 async function loadEmotes() {
-    await waitForCSS("emotes.css");
+    await UTIL.waitForCSS("emotes.css");
     const emoteButton = document.getElementById('chat-emoticon-btn');
     emoteButton.click(); // Open
     emoteButton.click(); // Close
@@ -712,7 +420,7 @@ function registerInfoObserver() {
 async function onLoad() {
     if (PAGE_TYPE === PAGE_TYPES.CHAT) {
         chatSettingsMenu();
-        injectStylesheet('css/link-size.css');
+        UTIL.injectStylesheet('css/link-size.css');
         registerInfoObserver();
         if (settings['inline-rustlesearch']) loadEmotes();
     } else {
@@ -720,8 +428,8 @@ async function onLoad() {
         changelogDialog();
     }
     if (PAGE_TYPE === PAGE_TYPES.BIGSCREEN) {
-        injectStylesheet('css/bigscreen-menubar.css', settings['bigscreen-menubar']);
-        injectStylesheet('css/bigscreen-controls.css', settings['bigscreen-controls']);
+        UTIL.injectStylesheet('css/bigscreen-menubar.css', settings['bigscreen-menubar']);
+        UTIL.injectStylesheet('css/bigscreen-controls.css', settings['bigscreen-controls']);
     }
     if (PAGE_TYPE === PAGE_TYPES.SETTINGS) {
         profileSettingsNavbar();
@@ -731,14 +439,14 @@ async function onLoad() {
 
 async function onSettingsChanged() {
     if (PAGE_TYPE === PAGE_TYPES.CHAT) {
-        injectStylesheet('css/link-size-debug.css', settings['link-size-debug']);
+        UTIL.injectStylesheet('css/link-size-debug.css', settings['link-size-debug']);
         document.body.style.setProperty('--link-size', settings['link-size'] - 1);
         addLinkAggregationButton();
     }
 }
 
 async function main() {
-    injectStylesheet('css/base.css');
+    UTIL.injectStylesheet('css/base.css');
     await loadSettings();
     await onLoad();
     await onSettingsChanged();
