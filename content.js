@@ -262,7 +262,7 @@ function compareVersions(a, b) {
     return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
 }
 
-async function showChangelogDialog(fromVersion, toVersion) {
+async function showChangelogDialog(fromVersion, toVersion, autoPopup = false) {
     if (fromVersion !== toVersion) {
         const changelogs = await loadChangelogFile();
         const description = Object.entries(changelogs)
@@ -274,6 +274,19 @@ async function showChangelogDialog(fromVersion, toVersion) {
             .flat(Infinity);
         if (!description.length) return;
 
+        const disableCheckbox = !autoPopup ? null : el('div', { classes: ['card__field-container'] }, 
+            el('div', {classes: ['card__field']},
+                el('input', {
+                    type: 'checkbox',
+                    id: 'dgg-tweaker-dont-show-again',
+                    name: 'dgg-tweaker-dont-show-again',
+                    checked: !settings['show-changelogs'],
+                    events: { change: e => changeSetting('show-changelogs', !e.target.checked) }
+                })
+            ),
+            el('label', { classes: ['card__field-label'], for: 'dgg-tweaker-dont-show-again' }, "Don't show this again"),
+        );
+
         const dialog = el('dialog', { classes: ['card', 'card--prominent', 'dgg-tweaks-update-dialog'] },
             el('div', {classes:['card__header']},
                 el('span', {classes:['card__title']}, "DGG Tweaks Changes"),
@@ -281,6 +294,7 @@ async function showChangelogDialog(fromVersion, toVersion) {
             ),
             el('div', {classes:['card__description']}, ...description),
             el('div', {classes:['card__extra','card__extra--right']},
+                disableCheckbox,
                 el('button', {classes:['button','button--secondary'], events: {click: () => dialog.remove()}}, "Close")
             )
         ).build();
@@ -301,7 +315,7 @@ async function changelogDialog() {
     // Prior to version 1.5, we have no version saved, but still want to show the changelog. After this point, default to no changelog shown on first entry
     let prevVersion = (await chrome.storage.sync.get('version')).version ?? (compareVersions(VERSION, "1.5") == 0 ? "1.4" : VERSION);
     await chrome.storage.sync.set({ version: VERSION });
-    if (settings['show-changelogs']) showChangelogDialog(prevVersion, VERSION);
+    if (settings['show-changelogs']) showChangelogDialog(prevVersion, VERSION, true);
 }
 
 // LINK AGGREGATION BUTTON

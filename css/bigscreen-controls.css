@@ -4,6 +4,8 @@
     left: 0px;
     bottom: 0px;
     padding: 2em;
+    padding-top: 0;
+    width: max-content;
 }
 .bigscreen .stream-panel--theater #stream-controls > * {
     transform: translateY(calc(100% + 4em + 24px));

@@ -52,7 +52,8 @@ input.form-control {
 }
 .dgg-tweaks-update-dialog:focus-visible {
     outline: none;
-}.dgg-tweaks-update-dialog button:focus-visible {
+}
+.dgg-tweaks-update-dialog *:focus-visible {
     outline: none;
 }
 .dgg-tweaks-update-dialog::backdrop {
@@ -75,6 +76,41 @@ input.form-control {
 }
 .dgg-tweaks-update-dialog .card__description p:first-child {
     margin-top: 0em;
+}
+.dgg-tweaks-update-dialog .card__field-container {
+    flex-grow: 1;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.dgg-tweaks-update-dialog .card__field-label {
+    font: 400 .88rem/1.25rem Inter,system-ui,sans-serif;
+}
+.dgg-tweaks-update-dialog .card__field {
+    display: flex;
+}
+.dgg-tweaks-update-dialog input[type="checkbox"] {
+    appearance: none;
+    background-color: #18191b;
+    margin: 0;
+    overflow: hidden;
+    font: inherit;
+    color: #edeef0;
+    width: 1rem;
+    height: 1rem;
+    border: 1px solid #43484e;
+    border-radius: 0.3125rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 150ms ease 0s, border-color 150ms ease 0s;
+}
+.dgg-tweaks-update-dialog input[type="checkbox"]:hover {
+    border-color:  #0090ff;
+}
+.dgg-tweaks-update-dialog input[type="checkbox"]:checked {
+    background-color: #0090ff;
+    border-color:  #0090ff;
 }
 
 #chat-tools-wrap #chat-aggregate-links-btn .btn-icon.btn-icon {
