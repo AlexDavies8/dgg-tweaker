@@ -1,0 +1,48 @@
+#chat-user-info {
+    height: 300px;
+    max-width: none;
+}
+
+#chat-user-info .stalk.stalk {
+    min-height: 0px;
+    height: revert;
+    flex-grow: 1;
+}
+
+.chat-menu-inner.floating-window.floating-window {
+    height: 100% !important;
+}
+
+.user-info {
+    min-height: 0px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.resize-vertical {
+    width: calc(100% - 4px);
+    height: 8px;
+    position: absolute;
+    left: 0px;  
+    bottom: -4px;
+    cursor: ns-resize;
+}
+
+.resize-horizontal {
+    width: 8px;
+    height: calc(100% - 4px);
+    position: absolute;
+    top: 0px;
+    right: -4px;
+    cursor: ew-resize;
+}
+
+.resize-diagonal {
+    width: 12px;
+    height: 12px;
+    position: absolute;
+    bottom: -4px;
+    right: -4px;
+    cursor: nwse-resize;
+}

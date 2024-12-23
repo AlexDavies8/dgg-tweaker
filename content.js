@@ -14,6 +14,7 @@ const settingsMenuDef = [
         subheading: "Settings that affect DGG Chat (including embeds)",
         fields: [
             [INPUT_TYPES.CHECKBOX, 'inline-rustlesearch', "Inline RustleSearch", "Show rustlesearch logs directly in user right click info menu"],
+            [INPUT_TYPES.CHECKBOX, 'resize-user-info', "Resizable User Info", "Allow for resizing the user right click info menu"],
             [INPUT_TYPES.NUMBER_FIELD, 'link-size', "Link Size", 'Increase the clickable area for links (no visual change)', "1.00", 1.00],
             [INPUT_TYPES.CHECKBOX, 'link-size-debug', "Visualise Link Size", "Show an outline around the clickable area (debug option)"],
             [INPUT_TYPES.SELECT, 'aggregate-links-button', "'Aggregate Links' Button", "Mode for a new 'Aggregate Links' button in chat", [['off', 'Disabled'], ['link', 'Links Only'], ['name', 'Include Usernames'], ['full', 'Full Messages']]],
@@ -44,7 +45,8 @@ let settings = {
     'link-size': 1.00,
     'link-size-debug': false,
     'aggregate-links-button': true,
-    'inline-rustlesearch': true
+    'inline-rustlesearch': true,
+    'resize-user-info': true
 };
 
 function changeSetting(key, value) {
@@ -404,10 +406,56 @@ async function loadEmotes() {
     emoteButton.click(); // Close
 }
 
+// RESIZE USER INFO
+
+const RESIZE_AXIS = {
+    VERTICAL: 'vertical',
+    HORIZONTAL: 'horizontal',
+    DIAGONAL: 'diagonal'
+}
+
+let currentResizeAxis = RESIZE_AXIS.DIAGONAL;
+
+function startInfoResize(axis) {
+    document.addEventListener("mouseup", endResize);
+    document.addEventListener("mousemove", resizeInfo);
+    currentResizeAxis = axis;
+}
+
+function resizeInfo(e) {
+    const el = document.querySelector('#chat-user-info');
+    
+    const left = parseInt(el.style.left.slice(0, el.style.left.length - 2));
+    const top = parseInt(el.style.top.slice(0, el.style.top.length - 2));
+
+    if (currentResizeAxis != RESIZE_AXIS.HORIZONTAL) el.style.height = e.clientY - top + "px";
+    if (currentResizeAxis != RESIZE_AXIS.VERTICAL) el.style.width = e.clientX - left + "px";
+}
+
+function endResize() {
+    document.removeEventListener("mouseup", endResize);
+    document.removeEventListener("mousemove", resizeInfo);
+}
+
+async function injectInfoResize() {
+    const infoBox = document.querySelector('#chat-user-info');
+    UTIL.injectStylesheet('css/resize-user-info.css', settings['resize-user-info']);
+    if (settings['resize-user-info']) {
+        if (!infoBox.querySelector('#info-resize-vertical')) infoBox.appendChild(el('div', { id: 'info-resize-vertical', classes: ['resize-vertical'], events: { mousedown: () => startInfoResize(RESIZE_AXIS.VERTICAL) } }).build());
+        if (!infoBox.querySelector('#info-resize-horizontal')) infoBox.appendChild(el('div', { id: 'info-resize-horizontal', classes: ['resize-horizontal'], events: { mousedown: () => startInfoResize(RESIZE_AXIS.HORIZONTAL) } }).build());
+        if (!infoBox.querySelector('#info-resize-diagonal')) infoBox.appendChild(el('div', { id: 'info-resize-diagonal', classes: ['resize-diagonal'], events: { mousedown: () => startInfoResize(RESIZE_AXIS.DIAGONAL) } }).build());    
+    } else {
+        infoBox.querySelector('#info-resize-vertical')?.remove();
+        infoBox.querySelector('#info-resize-horizontal')?.remove();
+        infoBox.querySelector('#info-resize-diagonal')?.remove();
+    }
+ }
+
 // USER INFO BOX
 
-function injectToUserInfo() {
-    if (settings['inline-rustlesearch']) injectRustleLogs();
+async function injectToUserInfo() {
+    if (settings['inline-rustlesearch']) await injectRustleLogs();
+    injectInfoResize();
 }
 
 let infoActive = false;
@@ -454,7 +502,7 @@ async function onLoad() {
 async function onSettingsChanged() {
     if (PAGE_TYPE === PAGE_TYPES.CHAT) {
         UTIL.injectStylesheet('css/link-size-debug.css', settings['link-size-debug']);
-        document.body.style.setProperty('--link-size', settings['link-size'] - 1);
+        document.body.style.setProperty('--link-size', isNaN(Number(settings['link-size'])) ? 0 : settings['link-size'] - 1);
         addLinkAggregationButton();
     }
 }

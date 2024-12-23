@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "DGG Tweaks",
-    "version": "1.8",
+    "version": "1.9",
     "description": "UI Tweaks for destiny.gg",
     "permissions": [
       "storage"

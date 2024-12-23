@@ -7,5 +7,6 @@
     "1.5" : "Settings bugfix and new link aggregator feature",
     "1.6" : "The following features got merged into official DGG chat, so have been removed:\n<ul><li>Better Icons</li><li>'View Logs' Button</li></ul>This extension has also been rewritten under the hood, so adding new features should be much easier than before",
     "1.7" : "RustleSearch logs can now be seen directly in DGG chat by right clicking on a user. It will show the last 100 messages",
-    "1.8" : "Improved Cinema Mode controls hover area"
+    "1.8" : "Improved Cinema Mode controls hover area",
+    "1.9" : "Can now resize user info box. Additional bugfix for if link size is invalid."
 }
