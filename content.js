@@ -388,24 +388,23 @@ async function injectRustleLogs() {
     const messageTemplate = messageContainer.firstChild;
     const templateText = messageTemplate.textContent;
     let currentEl;
-    for (const message of messages) {
-        const innerHTML = REGEXES.renderChatMessage(message.text);
+    async function processMessage(message) {
+        const innerHTML = await REGEXES.renderChatMessage(message.text);
         const messageEl = messageTemplate.cloneNode(true);
         messageEl.querySelector('.text').innerHTML = innerHTML;
         messageTemplate.after(messageEl);
         if (!currentEl && messageEl.textContent === templateText) currentEl = messageEl;
     }
+    var promises = []
+    for (const message of messages) {
+        promises.push(processMessage(message));
+    }
+    await Promise.allSettled(promises);
     if (!currentEl) messageContainer.scrollTop = messageContainer.scrollHeight;
     else {
         messageTemplate.remove();
         currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
-}
-async function loadEmotes() {
-    await UTIL.waitForCSS("emotes.css");
-    const emoteButton = document.getElementById('chat-emoticon-btn');
-    emoteButton.click(); // Open
-    emoteButton.click(); // Close
 }
 
 // RESIZE USER INFO
@@ -527,7 +526,7 @@ async function onLoad() {
         chatSettingsMenu();
         UTIL.injectStylesheet('css/link-size.css');
         registerInfoObserver();
-        if (settings['inline-rustlesearch']) loadEmotes();
+        if (settings['inline-rustlesearch']) REGEXES.renderChatMessage("");
     } else {
         globalNavbarSettingsButton();
         changelogDialog();
