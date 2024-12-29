@@ -26,6 +26,7 @@ const settingsMenuDef = [
         fields: [
             [INPUT_TYPES.CHECKBOX, 'bigscreen-menubar', "Cinema Mode Menu Bar", "Slide out the menu bar on hover while in Cinema Mode"],
             [INPUT_TYPES.CHECKBOX, 'bigscreen-controls', "Cinema Mode Controls", "Slide out the bottom stream controls on hover while in Cinema Mode"],
+            [INPUT_TYPES.CHECKBOX, 'dgg-layout-fix', "DGG Layout Fix Script", "DGG Layout Fix script from chatter_here. Overrides the options above"],
         ]
     },
     {
@@ -46,7 +47,8 @@ let settings = {
     'link-size-debug': false,
     'aggregate-links-button': true,
     'inline-rustlesearch': true,
-    'resize-user-info': true
+    'resize-user-info': true,
+    'dgg-layout-fix': false
 };
 
 function changeSetting(key, value) {
@@ -123,10 +125,10 @@ const CHAT_UI = {
 }
 
 const PROFILE_UI = {
-    [INPUT_TYPES.CHECKBOX]: (key, label, description) => el('div', { classes: ['user-info__section'] }, 
+    [INPUT_TYPES.CHECKBOX]: (key, label, description) => el('div', { classes: ['user-info__section'] },
         el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
-        el('div', {classes: ['user-info__hint']}, description),
-        el('div', {classes: ['user-info__field']},
+        el('div', { classes: ['user-info__hint'] }, description),
+        el('div', { classes: ['user-info__field'] },
             el('input', {
                 type: 'checkbox',
                 id: 'dgg-tweaker-' + key,
@@ -136,13 +138,13 @@ const PROFILE_UI = {
             })
         )
     ),
-    [INPUT_TYPES.NUMBER_FIELD]: (key, label, description, placeholder, min = undefined, max = undefined) => el('div', { classes: ['user-info__section'] }, 
+    [INPUT_TYPES.NUMBER_FIELD]: (key, label, description, placeholder, min = undefined, max = undefined) => el('div', { classes: ['user-info__section'] },
         el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
-        el('div', {classes: ['user-info__hint']}, description),
-        el('div', {classes: ['user-info__field']},
-            el('div', {classes:['input']},
-                el('div', {classes:['input__area']},
-                    el('div', {classes:['input__container']},
+        el('div', { classes: ['user-info__hint'] }, description),
+        el('div', { classes: ['user-info__field'] },
+            el('div', { classes: ['input'] },
+                el('div', { classes: ['input__area'] },
+                    el('div', { classes: ['input__container'] },
                         el('input', {
                             type: 'number',
                             id: 'dgg-tweaker-' + key,
@@ -160,10 +162,10 @@ const PROFILE_UI = {
             )
         )
     ),
-    [INPUT_TYPES.BUTTON]: (key, label, description, buttonText, click) => el('div', { classes: ['user-info__section'] }, 
+    [INPUT_TYPES.BUTTON]: (key, label, description, buttonText, click) => el('div', { classes: ['user-info__section'] },
         el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
-        el('div', {classes: ['user-info__hint']}, description),
-        el('div', {classes: ['user-info__field']},
+        el('div', { classes: ['user-info__hint'] }, description),
+        el('div', { classes: ['user-info__field'] },
             el('input', {
                 type: 'button',
                 id: 'dgg-tweaker-' + key,
@@ -174,13 +176,13 @@ const PROFILE_UI = {
             })
         )
     ),
-    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['user-info__section'] }, 
+    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['user-info__section'] },
         el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
-        el('div', {classes: ['user-info__hint']}, description),
-        el('div', {classes: ['user-info__field']},
-            el('div', {classes:['input']},
-                el('div', {classes:['input__area']},
-                    el('div', {classes:['input__container']},
+        el('div', { classes: ['user-info__hint'] }, description),
+        el('div', { classes: ['user-info__field'] },
+            el('div', { classes: ['input'] },
+                el('div', { classes: ['input__area'] },
+                    el('div', { classes: ['input__container'] },
                         el('select', {
                             classes: ['form-control'],
                             id: 'dgg-tweaker-' + key,
@@ -205,7 +207,7 @@ function chatSettingsMenu() {
     const chatDef = settingsMenuDef.find(section => section.heading === 'Chat');
 
     const menu = el('div', { id: 'dgg-tweaks-settings' },
-        el('h4', { }, "DGG Tweaks"),
+        el('h4', {}, "DGG Tweaks"),
         ...chatDef.fields.map(field => renderField(CHAT_UI, field))
     ).build();
 
@@ -230,9 +232,9 @@ function profileSettingsMenu() {
 
 function profileSettingsNavbar() {
     const active = window.location.search === '?dgg-tweaks';
-    
+
     if (active) document.querySelector('.tab.tab--active').classList.remove('tab--active');
-    
+
     const navItem = el('li', { classes: active ? ['tab', 'tab--active'] : ['tab'] },
         el('a', { classes: ['tab__link'], href: '/profile/?dgg-tweaks' }, "DGG Tweaks")
     ).build();
@@ -241,7 +243,7 @@ function profileSettingsNavbar() {
 }
 
 function globalNavbarSettingsButton() {
-    const item = el('li', { classList: ['dropdown__item'] }, 
+    const item = el('li', { classList: ['dropdown__item'] },
         el('a', { classList: ['dropdown__link'], href: '/profile/?dgg-tweaks' },
             fromHTMLString(`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`),
             " DGG Tweaks"
@@ -268,16 +270,16 @@ async function showChangelogDialog(fromVersion, toVersion, autoPopup = false) {
     if (fromVersion !== toVersion) {
         const changelogs = await loadChangelogFile();
         const description = Object.entries(changelogs)
-            .filter(entry => compareVersions(String(entry[0]), fromVersion) > -1)
+            .filter(entry => compareVersions(String(entry[0]), fromVersion) > 0)
             .filter(entry => compareVersions(String(entry[0]), toVersion) < 1)
             .reverse()
             .map(entry => [entry[0], el('p', {}, fromHTMLString(entry[1]))])
-            .map(([k, v], idx) => idx > 0 ? [el('div', {classes:['card__header']}, el('span', {classes:['card__subtitle']}, `Version ${k}`)), v] : v)
+            .map(([k, v], idx) => idx > 0 ? [el('div', { classes: ['card__header'] }, el('span', { classes: ['card__subtitle'] }, `Version ${k}`)), v] : v)
             .flat(Infinity);
         if (!description.length) return;
 
-        const disableCheckbox = !autoPopup ? null : el('div', { classes: ['card__field-container'] }, 
-            el('div', {classes: ['card__field']},
+        const disableCheckbox = !autoPopup ? null : el('div', { classes: ['card__field-container'] },
+            el('div', { classes: ['card__field'] },
                 el('input', {
                     type: 'checkbox',
                     id: 'dgg-tweaker-dont-show-again',
@@ -290,19 +292,19 @@ async function showChangelogDialog(fromVersion, toVersion, autoPopup = false) {
         );
 
         const dialog = el('dialog', { classes: ['card', 'card--prominent', 'dgg-tweaks-update-dialog'] },
-            el('div', {classes:['card__header']},
-                el('span', {classes:['card__title']}, "DGG Tweaks Changes"),
-                el('span', {classes:['card__subtitle']}, `Version ${VERSION}`), 
+            el('div', { classes: ['card__header'] },
+                el('span', { classes: ['card__title'] }, "DGG Tweaks Changes"),
+                el('span', { classes: ['card__subtitle'] }, `Version ${VERSION}`),
             ),
-            el('div', {classes:['card__description']}, ...description),
-            el('div', {classes:['card__extra','card__extra--right']},
+            el('div', { classes: ['card__description'] }, ...description),
+            el('div', { classes: ['card__extra', 'card__extra--right'] },
                 disableCheckbox,
-                el('button', {classes:['button','button--secondary'], events: {click: () => dialog.remove()}}, "Close")
+                el('button', { classes: ['button', 'button--secondary'], events: { click: () => dialog.remove() } }, "Close")
             )
         ).build();
         document.body.appendChild(dialog);
         dialog.showModal();
-        dialog.addEventListener('click', function(event) {
+        dialog.addEventListener('click', function (event) {
             var rect = dialog.getBoundingClientRect();
             var isInDialog = (rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
                 rect.left <= event.clientX && event.clientX <= rect.left + rect.width);
@@ -348,7 +350,7 @@ function openLinkAggregatorPopup() {
     var popupContent = el('div', { classes: ['dgg-tweaks-aggregate-links'] }, ...messages).build();
     if (messages.length) linkButton._tippy.setContent(popupContent.outerHTML);
     else linkButton._tippy.setContent("<div class='dgg-tweaks-aggregate-links'>No links found in chat</div>");
-    
+
     if (linkButton._tippy.state.isShown) linkButton._tippy.hide();
     else linkButton._tippy.show();
 }
@@ -396,7 +398,7 @@ async function injectRustleLogs() {
     if (!currentEl) messageContainer.scrollTop = messageContainer.scrollHeight;
     else {
         messageTemplate.remove();
-        currentEl.scrollIntoView({block: "nearest", inline: "nearest"});
+        currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
 }
 async function loadEmotes() {
@@ -424,7 +426,7 @@ function startInfoResize(axis) {
 
 function resizeInfo(e) {
     const el = document.querySelector('#chat-user-info');
-    
+
     const left = parseInt(el.style.left.slice(0, el.style.left.length - 2));
     const top = parseInt(el.style.top.slice(0, el.style.top.length - 2));
 
@@ -443,13 +445,13 @@ async function injectInfoResize() {
     if (settings['resize-user-info']) {
         if (!infoBox.querySelector('#info-resize-vertical')) infoBox.appendChild(el('div', { id: 'info-resize-vertical', classes: ['resize-vertical'], events: { mousedown: () => startInfoResize(RESIZE_AXIS.VERTICAL) } }).build());
         if (!infoBox.querySelector('#info-resize-horizontal')) infoBox.appendChild(el('div', { id: 'info-resize-horizontal', classes: ['resize-horizontal'], events: { mousedown: () => startInfoResize(RESIZE_AXIS.HORIZONTAL) } }).build());
-        if (!infoBox.querySelector('#info-resize-diagonal')) infoBox.appendChild(el('div', { id: 'info-resize-diagonal', classes: ['resize-diagonal'], events: { mousedown: () => startInfoResize(RESIZE_AXIS.DIAGONAL) } }).build());    
+        if (!infoBox.querySelector('#info-resize-diagonal')) infoBox.appendChild(el('div', { id: 'info-resize-diagonal', classes: ['resize-diagonal'], events: { mousedown: () => startInfoResize(RESIZE_AXIS.DIAGONAL) } }).build());
     } else {
         infoBox.querySelector('#info-resize-vertical')?.remove();
         infoBox.querySelector('#info-resize-horizontal')?.remove();
         infoBox.querySelector('#info-resize-diagonal')?.remove();
     }
- }
+}
 
 // USER INFO BOX
 
@@ -477,6 +479,47 @@ function registerInfoObserver() {
     }
 }
 
+// DGG-LAYOUT-FIX
+function applyDGGLayoutFix() {
+    const moveBefore = (el, newSibling) => newSibling?.parentNode?.insertBefore(el, newSibling);
+    const moveAppend = () => (el, newParent) => newParent?.appendChild(el);
+
+    document.querySelector('.navbar .navbar__item[href="/donate"]')?.remove(); // redundant
+    document.querySelector('.navbar .navbar__item[href="/"')?.remove(); // redundant
+
+    // TODO tinker with responsive collapsing
+    const moneyButtons = document.createElement("div");
+    moneyButtons.className = "navbar__items _layoutfix_navbar__money";
+
+    moveAppend(
+        document.getElementById("donate-btn"),
+        // document.querySelector(".navbar__items.navbar__navigation")
+        moneyButtons
+    );
+    moveAppend(
+        document.getElementById("subscribe-btn"),
+        // document.querySelector(".navbar__items.navbar__navigation")
+        moneyButtons
+    );
+    moveBefore(
+        document.getElementById("control-title"),
+        document.querySelector(".control-badges")
+    );
+    moveBefore(
+        document.getElementById("stream-controls"),
+        document.getElementById("embed")
+    );
+    moveBefore(
+        document.getElementById("control-buttons"),
+        // document.querySelector('.navbar__actions')
+        document.querySelector(".navbar__actions>:first-child")
+    );
+    moveBefore(
+        moneyButtons,
+        document.querySelector(".navbar__actions>:first-child")
+    );
+}
+
 // MAIN
 
 async function onLoad() {
@@ -492,6 +535,8 @@ async function onLoad() {
     if (PAGE_TYPE === PAGE_TYPES.BIGSCREEN) {
         UTIL.injectStylesheet('css/bigscreen-menubar.css', settings['bigscreen-menubar']);
         UTIL.injectStylesheet('css/bigscreen-controls.css', settings['bigscreen-controls']);
+        UTIL.injectStylesheet('css/dgg-layout-fix.css', settings['dgg-layout-fix']);
+        if (settings['dgg-layout-fix']) applyDGGLayoutFix();
     }
     if (PAGE_TYPE === PAGE_TYPES.SETTINGS) {
         profileSettingsNavbar();
@@ -514,4 +559,5 @@ async function main() {
     await onSettingsChanged();
 }
 
-main();
+if (document.readyState !== "loading") main();
+else document.addEventListener("DOMContentLoaded", main);

@@ -1,0 +1,79 @@
+body .navbar.navbar {
+    padding: .5rem 0;
+    gap: 1rem;
+}
+body .navbar__item.navbar__item {
+    padding: 0 .5rem;
+}
+body .navbar__items.navbar__socials.navbar__socials {
+  gap: 0;
+}
+body .navbar__items.navbar__socials .navbar__icon.navbar__icon {
+  height: 1.5rem;
+}
+
+header:has(~ #stream-wrap .stream-controls[data-embed-type="offline"]) #close-embed-btn#close-embed-btn,
+header:has(~ #stream-wrap .stream-controls[data-embed-type="live"]) #close-embed-btn#close-embed-btn,
+header:has(~ #stream-wrap .stream-controls[data-embed-type="host"]) #close-embed-btn#close-embed-btn {
+  display: none;
+}
+header:has(~ #stream-wrap .stream-controls[data-embed-type="embed"]) #change-platform-btn#change-platform-btn,
+header:has(~ #stream-wrap .stream-controls[data-embed-type="offline"]) #change-platform-btn#change-platform-btn {
+  display: none;
+}
+
+body .button.button {
+  padding: 0 .4rem;
+  height: 2rem;
+  align-self: center;
+}
+
+body #stream-wrap#stream-wrap {
+  padding: 0;
+}
+body #stream-controls#stream-controls {
+  gap: 0;
+  padding: 0 .5rem;
+}
+body #stream-controls .stream-controls__group.stream-controls__group {
+  gap: 0;
+}
+body #control-buttons#control-buttons {
+  min-width: fit-content; /* prevent vertical stacking */
+}
+body .navbar__logo.navbar__logo {
+  min-width: fit-content; /* prevent horizontal squishing */
+}
+body .stream-controls__group.stream-controls__group {
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding-bottom: 3px;
+}
+body .control-badges.control-badges {
+  align-content: center;
+}
+@media (orientation: portrait), (max-width: 40rem) {
+  body .stream-panel .control-buttons.control-buttons {
+    flex-direction: row;
+    align-self: center;
+  }
+  body .stream-panel .stream-controls.stream-controls {
+    padding: 0;
+    flex-direction: column;
+  }
+}
+
+@container (width < 930px) {
+  body .control-buttons .button.button span {
+    display: none;
+  }
+  body .navbar__items .button.button span {
+    display: none;
+  }
+}
+@container (width < 1050px) {
+  body .navbar__socials.navbar__socials {
+    display: none;
+  }
+}
