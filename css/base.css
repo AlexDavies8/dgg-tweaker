@@ -122,3 +122,19 @@ input.form-control {
     display: flex;
     flex-direction: column;
 }
+
+#chat-tools-wrap #dgg-tweaks-mentions-btn .btn-icon.btn-icon {
+    background: rgba(0,0,0,0) url('chrome-extension://__MSG_@@extension_id__/icons/mentions-icon.svg') no-repeat center center;
+    background-size: contain;
+}
+
+.dgg-tweaks-mentions-popup {
+    background: #080808;
+    padding: 8px 0px;
+}
+
+div.tippy-content:has(> .dgg-tweaks-mentions-popup) {
+    padding: 1px;
+    border-radius: 6px;
+    overflow: hidden;
+}

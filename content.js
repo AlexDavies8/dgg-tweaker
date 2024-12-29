@@ -15,6 +15,7 @@ const settingsMenuDef = [
         fields: [
             [INPUT_TYPES.CHECKBOX, 'inline-rustlesearch', "Inline RustleSearch", "Show rustlesearch logs directly in user right click info menu"],
             [INPUT_TYPES.CHECKBOX, 'resize-user-info', "Resizable User Info", "Allow for resizing the user right click info menu"],
+            [INPUT_TYPES.CHECKBOX, 'mentions-button', "Mentions Button", "Adds a button to the bottom of chat to view recent mentions"],
             [INPUT_TYPES.NUMBER_FIELD, 'link-size', "Link Size", 'Increase the clickable area for links (no visual change)', "1.00", 1.00],
             [INPUT_TYPES.CHECKBOX, 'link-size-debug', "Visualise Link Size", "Show an outline around the clickable area (debug option)"],
             [INPUT_TYPES.SELECT, 'aggregate-links-button', "'Aggregate Links' Button", "Mode for a new 'Aggregate Links' button in chat", [['off', 'Disabled'], ['link', 'Links Only'], ['name', 'Include Usernames'], ['full', 'Full Messages']]],
@@ -48,7 +49,8 @@ let settings = {
     'aggregate-links-button': true,
     'inline-rustlesearch': true,
     'resize-user-info': true,
-    'dgg-layout-fix': false
+    'dgg-layout-fix': false,
+    'mentions-button': true,
 };
 
 function changeSetting(key, value) {
@@ -519,6 +521,55 @@ function applyDGGLayoutFix() {
     );
 }
 
+// MENTION BUTTON
+async function openMentionsPopup() {
+    const username = document.getElementById("chat-input-control").placeholder.split(' ')[2];
+
+    let messages = [];
+
+    const res = await fetch(`https://www.destiny.gg/api/chat/mentions?username=${encodeURIComponent(username)}&limit=10`);
+    const json = await res.json();
+
+    async function processMessage(message) {
+        const messageEl = el('div', { classes: ['msg-chat', 'msg-user'] },
+            el('a', { classes: ['user'] }, message.nick),
+            el('span', { classes: ['ctrl'] }, ': '),
+            el('span', { classes: ['text'] }, fromHTMLString(await REGEXES.renderChatMessage(message.text)))
+        );
+        messages.push(messageEl);
+    }
+    var promises = []
+    for (const message of json) {
+        promises.push(processMessage(message));
+    }
+    await Promise.allSettled(promises);
+
+    const mentionsButton = document.getElementById('dgg-tweaks-mentions-btn');
+    var popupContent = el('div', { classes: ['dgg-tweaks-mentions-popup'] }, ...messages).build();
+    if (messages.length) mentionsButton._tippy.setContent(popupContent.outerHTML);
+    else mentionsButton._tippy.setContent("<div class='dgg-tweaks-mentions-popup'>No mentions found</div>");
+}
+
+function addMentionsButton() {
+    var mentionsButton = document.getElementById('dgg-tweaks-mentions-btn');
+    if (!settings["mentions-button"]) mentionsButton?.remove();
+    else if (!mentionsButton) {
+        const whisperButton = document.getElementById('chat-whisper-btn');
+        mentionsButton = whisperButton.cloneNode(true);
+        mentionsButton.id = 'dgg-tweaks-mentions-btn';
+        whisperButton.after(mentionsButton);
+        mentionsButton.addEventListener('click', openMentionsPopup);
+        mentionsButton.removeAttribute('data-tippy-content');
+        tippy(mentionsButton, {
+            trigger: 'click',
+            interactive: true,
+            allowHTML: true,
+            content: "",
+            maxWidth: 'none',
+        });
+    }
+}
+
 // MAIN
 
 async function onLoad() {
@@ -548,6 +599,7 @@ async function onSettingsChanged() {
         UTIL.injectStylesheet('css/link-size-debug.css', settings['link-size-debug']);
         document.body.style.setProperty('--link-size', isNaN(Number(settings['link-size'])) ? 0 : settings['link-size'] - 1);
         addLinkAggregationButton();
+        addMentionsButton();
     }
 }
 
