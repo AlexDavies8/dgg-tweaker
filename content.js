@@ -379,6 +379,11 @@ function addLinkAggregationButton() {
     }
 }
 
+function buildTemplatedChatMessage(username, text, timestamp = Date.now()) {
+    const CHAT_MESSAGE_TEMPLATE = `<div class="msg-chat msg-user" data-username="${username.toLowerCase()}"><time class="time" title="" data-unixtimestamp="${timestamp}"></time>  <a title="" class="user">${username}</a><span class="ctrl">: </span> <span class="text">${text}</span></div>`;
+    return fromHTMLString(CHAT_MESSAGE_TEMPLATE)[0].build();
+}
+
 // INLINE RUSTLESEARCH
 async function injectRustleLogs() {
     const infoBox = document.querySelector('#chat-user-info');
@@ -387,7 +392,13 @@ async function injectRustleLogs() {
     const json = await res.json();
     const messages = json.data.messages;
     const messageContainer = infoBox.querySelector('.content.os-viewport');
-    const messageTemplate = messageContainer.firstChild;
+    let deleteTemplate = false;
+    let messageTemplate = messageContainer.hasChildNodes() ? messageContainer.firstChild : null;
+    if (!messageTemplate) {
+        messageTemplate = buildTemplatedChatMessage(username, messages[0].text, new Date(messages[0].ts).getTime());
+        messageContainer.appendChild(messageTemplate);
+        deleteTemplate = true;
+    }
     const templateText = messageTemplate.textContent;
     let currentEl;
     async function processMessage(message) {
@@ -402,13 +413,15 @@ async function injectRustleLogs() {
         promises.push(processMessage(message));
     }
     await Promise.allSettled(promises);
+    infoBox.querySelector('.stalk.hidden')?.classList.remove("hidden");
     if (!currentEl) {
         messageContainer.appendChild(messageTemplate); // If the message is very new, rustlesearch won't see it yet, so it goes at the end
         messageContainer.scrollTop = messageContainer.scrollHeight;
     } else {
-        messageTemplate.remove();
+        deleteTemplate = true;
         currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
+    if (deleteTemplate) messageTemplate.remove();
 }
 
 // RESIZE USER INFO
@@ -459,8 +472,8 @@ async function injectInfoResize() {
 // USER INFO BOX
 
 async function injectToUserInfo() {
-    if (settings['inline-rustlesearch']) await injectRustleLogs();
-    injectInfoResize();
+    if (settings['inline-rustlesearch']) await injectRustleLogs().catch();
+    await injectInfoResize();
 }
 
 let infoActive = false;
