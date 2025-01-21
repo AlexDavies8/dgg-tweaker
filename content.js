@@ -402,8 +402,10 @@ async function injectRustleLogs() {
         promises.push(processMessage(message));
     }
     await Promise.allSettled(promises);
-    if (!currentEl) messageContainer.scrollTop = messageContainer.scrollHeight;
-    else {
+    if (!currentEl) {
+        messageContainer.appendChild(messageTemplate); // If the message is very new, rustlesearch won't see it yet, so it goes at the end
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+    } else {
         messageTemplate.remove();
         currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
     }
@@ -523,12 +525,22 @@ function applyDGGLayoutFix() {
 
 // MENTION BUTTON
 async function openMentionsPopup() {
+    const mentionsButton = document.getElementById('dgg-tweaks-mentions-btn');
+
+    if (mentionsButton._tippy.state.isShown) {
+        return;
+    }
+    mentionsButton._tippy.setContent("<div class='dgg-tweaks-mentions-popup' style='padding: 8px 12px;'>Loading...</div>");
+    mentionsButton._tippy.show();
+
     const username = document.getElementById("chat-input-control").placeholder.split(' ')[2];
 
     let messages = [];
 
     const res = await fetch(`https://www.destiny.gg/api/chat/mentions?username=${encodeURIComponent(username)}&limit=10`);
     const json = await res.json();
+    const msgArr = Array.isArray(json) ? json : Object.values(json).filter(item => typeof item !== "string" && item);
+    msgArr.sort((a, b) => a.date - b.date);
 
     async function processMessage(message) {
         const messageEl = el('div', { classes: ['msg-chat', 'msg-user'] },
@@ -539,12 +551,11 @@ async function openMentionsPopup() {
         messages.push(messageEl);
     }
     var promises = []
-    for (const message of json) {
+    for (const message of msgArr) {
         promises.push(processMessage(message));
     }
     await Promise.allSettled(promises);
 
-    const mentionsButton = document.getElementById('dgg-tweaks-mentions-btn');
     var popupContent = el('div', { classes: ['dgg-tweaks-mentions-popup'] }, ...messages).build();
     if (messages.length) mentionsButton._tippy.setContent(popupContent.outerHTML);
     else mentionsButton._tippy.setContent("<div class='dgg-tweaks-mentions-popup'>No mentions found</div>");
