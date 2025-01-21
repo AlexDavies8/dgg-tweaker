@@ -12,5 +12,6 @@
     "1.10" : "Added dgg-layout-fix script from chatter_here. It can be toggled via the options menu in the profile dropdown.",
     "1.11" : "Fixed bug with emotes in chat history. Improved performance as well.",
     "1.12" : "Added new 'Mentions Button' at the bottom of chat to see the 10 most recent times you've been mentioned in chat.",
-    "1.13" : "Emotes in chat history fixed - it now uses the same emotes list as DGG chat uses internally."
+    "1.13" : "Emotes in chat history fixed - it now uses the same emotes list as DGG chat uses internally.",
+    "1.14" : "NSFW, NSFL and SPOILER underlines now appear under links. Fixed bug where mentions sometimes don't load, and mentions are now sorted correctly by time."
 }
