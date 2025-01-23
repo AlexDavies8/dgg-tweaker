@@ -385,43 +385,69 @@ function buildTemplatedChatMessage(username, text, timestamp = Date.now()) {
 }
 
 // INLINE RUSTLESEARCH
-async function injectRustleLogs() {
+
+let lastRequestTimestamp = null;
+let loadingLogs = false;
+
+async function loadRustleLogs() {
+    if (loadingLogs) return;
+    loadingLogs = true;
+
     const infoBox = document.querySelector('#chat-user-info');
     const username = infoBox.querySelector('.username').textContent;
-    const res = await fetch(`https://api-v2.rustlesearch.dev/anon/search?channel=Destinygg&username=${encodeURIComponent(username)}`);
+    const messageContainer = infoBox.querySelector('.content.os-viewport');
+
+    infoBox.querySelector('.stalk.hidden')?.classList.remove("hidden"); // Unhide message container
+
+    let url = `https://api-v2.rustlesearch.dev/anon/search?channel=Destinygg&username=${encodeURIComponent(username)}`;
+    if (lastRequestTimestamp !== null) url += `&search_after=${lastRequestTimestamp}`;
+    const res = await fetch(url);
     const json = await res.json();
     const messages = json.data.messages;
-    const messageContainer = infoBox.querySelector('.content.os-viewport');
-    let deleteTemplate = false;
-    let messageTemplate = messageContainer.hasChildNodes() ? messageContainer.firstChild : null;
-    if (!messageTemplate) {
-        messageTemplate = buildTemplatedChatMessage(username, messages[0].text, new Date(messages[0].ts).getTime());
-        messageContainer.appendChild(messageTemplate);
-        deleteTemplate = true;
-    }
-    const templateText = messageTemplate.textContent;
-    let currentEl;
-    async function processMessage(message) {
+    messages.sort((a, b) => a.searchAfter < b.searchAfter);
+    
+    const useExistingMessage = messageContainer.hasChildNodes();
+    let messageTemplate = useExistingMessage ? messageContainer.lastChild : null;
+    if (!messageTemplate) messageTemplate = buildTemplatedChatMessage(username, "");
+    else messageTemplate.remove(); // Remove from tree
+    
+    const messageEls = await Promise.all(messages.map(async message => {
         const innerHTML = await REGEXES.renderChatMessage(message.text);
         const messageEl = messageTemplate.cloneNode(true);
         messageEl.querySelector('.text').innerHTML = innerHTML;
-        messageTemplate.after(messageEl);
-        if (!currentEl && messageEl.textContent === templateText) currentEl = messageEl;
-    }
-    var promises = []
-    for (const message of messages) {
-        promises.push(processMessage(message));
-    }
-    await Promise.allSettled(promises);
-    infoBox.querySelector('.stalk.hidden')?.classList.remove("hidden");
-    if (!currentEl) {
-        messageContainer.appendChild(messageTemplate); // If the message is very new, rustlesearch won't see it yet, so it goes at the end
+        return messageEl;
+    }));
+
+    const relativeScroll = messageContainer.scrollHeight - messageContainer.scrollTop; 
+
+    messageEls.forEach(el => {
+        if (messageContainer.firstChild) messageContainer.firstChild.before(el);
+        else messageContainer.appendChild(el);
+    });
+
+    if (!lastRequestTimestamp) {
         messageContainer.scrollTop = messageContainer.scrollHeight;
+        const currentEl = messageEls.find(el => el.textContent === messageTemplate.textContent);
+        if (currentEl) currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+        else if (useExistingMessage) messageContainer.appendChild(messageTemplate);
     } else {
-        deleteTemplate = true;
-        currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+        messageContainer.scrollTop = messageContainer.scrollHeight - relativeScroll;
     }
-    if (deleteTemplate) messageTemplate.remove();
+
+    let moreButton = messageContainer.querySelector(".dgg-tweaks-more-messages-btn");
+    if (!moreButton) moreButton = el("button", { classes: ["dgg-tweaks-more-messages-btn"], events: { click: loadRustleLogs } }, "Load more messages").build();
+    else moreButton.remove();
+    messageContainer.firstChild.before(moreButton);
+
+    lastRequestTimestamp = messages[messages.length - 1].searchAfter;
+    loadingLogs = false;
+}
+
+async function injectRustleLogs() {
+    lastRequestTimestamp = null;
+    loadingLogs = false; // In case something went wrong, force not loading
+    document.querySelector('#chat-user-info')?.querySelector(".dgg-tweaks-more-messages-btn")?.remove();
+    await loadRustleLogs();
 }
 
 // RESIZE USER INFO

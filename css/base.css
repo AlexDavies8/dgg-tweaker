@@ -138,3 +138,17 @@ div.tippy-content:has(> .dgg-tweaks-mentions-popup) {
     border-radius: 6px;
     overflow: hidden;
 }
+
+.dgg-tweaks-more-messages-btn {
+    color: rgb(245, 245, 245);
+    font-weight: bold;
+    border-bottom: 1px solid rgb(97, 97, 97);
+    width: 100%;
+    background-color: #121212;
+    margin-bottom: 4px;
+    padding-top: 4px;
+    padding-bottom: 2px;
+}
+.dgg-tweaks-more-messages-btn:hover {
+    background-color: #282828;
+}
