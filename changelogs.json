@@ -14,5 +14,6 @@
     "1.12" : "Added new 'Mentions Button' at the bottom of chat to see the 10 most recent times you've been mentioned in chat.",
     "1.13" : "Emotes in chat history fixed - it now uses the same emotes list as DGG chat uses internally.",
     "1.14" : "NSFW, NSFL and SPOILER underlines now appear under links. Fixed bug where mentions sometimes don't load, and mentions are now sorted correctly by time.",
-    "1.15" : "RustleSearch logs now load when accessed from the users menu in the bottom right."
+    "1.15" : "RustleSearch logs now load when accessed from the users menu in the bottom right.",
+    "1.16" : "Added 'Load more messages' button to logs and improved logs reliability"
 }
