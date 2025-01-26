@@ -152,3 +152,8 @@ div.tippy-content:has(> .dgg-tweaks-mentions-popup) {
 .dgg-tweaks-more-messages-btn:hover {
     background-color: #282828;
 }
+
+#dgg-tweaks-mentions-button.dgg-tweaks-setting:has(input:not(:checked)) ~ #dgg-tweaks-mentions-force-timestamps.dgg-tweaks-setting,
+#dgg-tweaks-inline-rustlesearch.dgg-tweaks-setting:has(input:not(:checked)) ~ #dgg-tweaks-inline-force-timestamps.dgg-tweaks-setting {
+    display: none !important;
+}

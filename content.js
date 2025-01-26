@@ -14,8 +14,10 @@ const settingsMenuDef = [
         subheading: "Settings that affect DGG Chat (including embeds)",
         fields: [
             [INPUT_TYPES.CHECKBOX, 'inline-rustlesearch', "Inline RustleSearch", "Show rustlesearch logs directly in user right click info menu"],
+            [INPUT_TYPES.CHECKBOX, 'inline-force-timestamps', "Force RustleSearch Timestamps", "Always show timestamps for inline logs from rustlesearch"],
             [INPUT_TYPES.CHECKBOX, 'resize-user-info', "Resizable User Info", "Allow for resizing the user right click info menu"],
             [INPUT_TYPES.CHECKBOX, 'mentions-button', "Mentions Button", "Adds a button to the bottom of chat to view recent mentions"],
+            [INPUT_TYPES.CHECKBOX, 'mentions-force-timestamps', "Force Mentions Timestamps", "Always show timestamps for mentions"],
             [INPUT_TYPES.NUMBER_FIELD, 'link-size', "Link Size", 'Increase the clickable area for links (no visual change)', "1.00", 1.00],
             [INPUT_TYPES.CHECKBOX, 'link-size-debug', "Visualise Link Size", "Show an outline around the clickable area (debug option)"],
             [INPUT_TYPES.SELECT, 'aggregate-links-button', "'Aggregate Links' Button", "Mode for a new 'Aggregate Links' button in chat", [['off', 'Disabled'], ['link', 'Links Only'], ['name', 'Include Usernames'], ['full', 'Full Messages']]],
@@ -46,11 +48,13 @@ let settings = {
     'bigscreen-controls': false,
     'link-size': 1.00,
     'link-size-debug': false,
-    'aggregate-links-button': true,
+    'aggregate-links-button': 'off',
     'inline-rustlesearch': true,
+    'inline-force-timestamps': false,
     'resize-user-info': true,
     'dgg-layout-fix': false,
     'mentions-button': true,
+    'mentions-force-timestamps': false
 };
 
 function changeSetting(key, value) {
@@ -86,10 +90,10 @@ function getPageType() {
 
 // UI ELEMENTS
 const CHAT_UI = {
-    [INPUT_TYPES.CHECKBOX]: (key, label, description) => el('div', { classes: ['form-group', 'checkbox'] },
-        el('label', { title: description },
+    [INPUT_TYPES.CHECKBOX]: (key, label, description) => el('div', { classes: ['form-group', 'checkbox', 'dgg-tweaks-setting'], id: 'dgg-tweaks-' + key },
+        el('label', { title: description, for: 'dgg-tweaks-' + key },
             el('input', {
-                name: 'dgg-tweaker-' + key,
+                name: 'dgg-tweaks-' + key,
                 type: 'checkbox',
                 checked: settings[key],
                 events: { change: e => changeSetting(key, e.target.checked) }
@@ -97,13 +101,12 @@ const CHAT_UI = {
             label
         )
     ),
-    [INPUT_TYPES.NUMBER_FIELD]: (key, label, description, placeholder, min = undefined, max = undefined) => el('div', { classes: ['form-group'] },
-        el('label', { title: description, for: 'dgg-tweaker-' + key }, label),
+    [INPUT_TYPES.NUMBER_FIELD]: (key, label, description, placeholder, min = undefined, max = undefined) => el('div', { classes: ['form-group', 'dgg-tweaks-setting'], id: 'dgg-tweaks-' + key },
+        el('label', { title: description, for: 'dgg-tweaks-' + key }, label),
         el('input', {
             classes: ['form-control'],
             type: 'number',
-            id: 'dgg-tweaker-' + key,
-            name: 'dgg-tweaker-' + key,
+            name: 'dgg-tweaks-' + key,
             value: settings[key],
             min,
             max,
@@ -113,12 +116,11 @@ const CHAT_UI = {
             }
         })
     ),
-    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['form-group'] },
-        el('label', { title: description, for: 'dgg-tweaker-' + key }, label),
+    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['form-group', 'dgg-tweaks-setting'], id: 'dgg-tweaks-' + key },
+        el('label', { title: description, for: 'dgg-tweaks-' + key }, label),
         el('select', {
             classes: ['form-control'],
-            id: 'dgg-tweaker-' + key,
-            name: 'dgg-tweaker-' + key,
+            name: 'dgg-tweaks-' + key,
             events: {
                 change: e => changeSetting(key, e.target.value)
             }
@@ -127,21 +129,20 @@ const CHAT_UI = {
 }
 
 const PROFILE_UI = {
-    [INPUT_TYPES.CHECKBOX]: (key, label, description) => el('div', { classes: ['user-info__section'] },
-        el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
+    [INPUT_TYPES.CHECKBOX]: (key, label, description) => el('div', { classes: ['user-info__section', 'dgg-tweaks-setting'], id: 'dgg-tweaks-' + key },
+        el('label', { classes: ['user-info__label'], for: 'dgg-tweaks-' + key }, label),
         el('div', { classes: ['user-info__hint'] }, description),
         el('div', { classes: ['user-info__field'] },
             el('input', {
                 type: 'checkbox',
-                id: 'dgg-tweaker-' + key,
-                name: 'dgg-tweaker-' + key,
+                name: 'dgg-tweaks-' + key,
                 checked: settings[key],
                 events: { change: e => changeSetting(key, e.target.checked) }
             })
         )
     ),
-    [INPUT_TYPES.NUMBER_FIELD]: (key, label, description, placeholder, min = undefined, max = undefined) => el('div', { classes: ['user-info__section'] },
-        el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
+    [INPUT_TYPES.NUMBER_FIELD]: (key, label, description, placeholder, min = undefined, max = undefined) => el('div', { classes: ['user-info__section', 'dgg-tweaks-setting'], id: 'dgg-tweaks-' + key },
+        el('label', { classes: ['user-info__label'], for: 'dgg-tweaks-' + key }, label),
         el('div', { classes: ['user-info__hint'] }, description),
         el('div', { classes: ['user-info__field'] },
             el('div', { classes: ['input'] },
@@ -149,8 +150,7 @@ const PROFILE_UI = {
                     el('div', { classes: ['input__container'] },
                         el('input', {
                             type: 'number',
-                            id: 'dgg-tweaker-' + key,
-                            name: 'dgg-tweaker-' + key,
+                            name: 'dgg-tweaks-' + key,
                             value: settings[key],
                             min,
                             max,
@@ -164,22 +164,21 @@ const PROFILE_UI = {
             )
         )
     ),
-    [INPUT_TYPES.BUTTON]: (key, label, description, buttonText, click) => el('div', { classes: ['user-info__section'] },
-        el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
+    [INPUT_TYPES.BUTTON]: (key, label, description, buttonText, click) => el('div', { classes: ['user-info__section', 'dgg-tweaks-setting'], id: 'dgg-tweaks-' + key },
+        el('label', { classes: ['user-info__label'], for: 'dgg-tweaks-' + key }, label),
         el('div', { classes: ['user-info__hint'] }, description),
         el('div', { classes: ['user-info__field'] },
             el('input', {
                 type: 'button',
-                id: 'dgg-tweaker-' + key,
-                name: 'dgg-tweaker-' + key,
+                name: 'dgg-tweaks-' + key,
                 classes: ['button', 'button--secondary'],
                 events: { click },
                 value: buttonText
             })
         )
     ),
-    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['user-info__section'] },
-        el('label', { classes: ['user-info__label'], for: 'dgg-tweaker-' + key }, label),
+    [INPUT_TYPES.SELECT]: (key, label, description, options) => el('div', { classes: ['user-info__section', 'dgg-tweaks-setting'], id: 'dgg-tweaks-' + key },
+        el('label', { classes: ['user-info__label'], for: 'dgg-tweaks-' + key }, label),
         el('div', { classes: ['user-info__hint'] }, description),
         el('div', { classes: ['user-info__field'] },
             el('div', { classes: ['input'] },
@@ -187,8 +186,7 @@ const PROFILE_UI = {
                     el('div', { classes: ['input__container'] },
                         el('select', {
                             classes: ['form-control'],
-                            id: 'dgg-tweaker-' + key,
-                            name: 'dgg-tweaker-' + key,
+                            name: 'dgg-tweaks-' + key,
                             events: {
                                 change: e => changeSetting(key, e.target.value)
                             }
@@ -284,13 +282,13 @@ async function showChangelogDialog(fromVersion, toVersion, autoPopup = false) {
             el('div', { classes: ['card__field'] },
                 el('input', {
                     type: 'checkbox',
-                    id: 'dgg-tweaker-dont-show-again',
-                    name: 'dgg-tweaker-dont-show-again',
+                    id: 'dgg-tweaks-dont-show-again',
+                    name: 'dgg-tweaks-dont-show-again',
                     checked: !settings['show-changelogs'],
                     events: { change: e => changeSetting('show-changelogs', !e.target.checked) }
                 })
             ),
-            el('label', { classes: ['card__field-label'], for: 'dgg-tweaker-dont-show-again' }, "Don't show this again"),
+            el('label', { classes: ['card__field-label'], for: 'dgg-tweaks-dont-show-again' }, "Don't show this again"),
         );
 
         const dialog = el('dialog', { classes: ['card', 'card--prominent', 'dgg-tweaks-update-dialog'] },
@@ -379,9 +377,56 @@ function addLinkAggregationButton() {
     }
 }
 
+function showTimeEnabled() {
+    return document.getElementById("chat").classList.contains("pref-showtime");
+}
+
+const FULL_DATE_FORMAT = {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: true,
+    suffix: true
+};
+
+const TIME_FORMAT = {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
+}
+
+function formatTimestamp(timestamp, options = FULL_DATE_FORMAT) {
+    const { suffix = false, ...formatOptions } = options;
+    const date = new Date(timestamp);
+
+    let formatted = new Intl.DateTimeFormat("en-GB", formatOptions).format(date);
+    if (suffix) {
+        const day = date.getDate();
+        formatted = formatted.replace(day.toString(), `${day}${getDaySuffix(day)}`);
+    }
+    return formatted;
+}
+
+function getDaySuffix(day) {
+    if (day > 3 && day < 21) return "th";
+    switch (day % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
+    }
+}
+
 function buildTemplatedChatMessage(username, text, timestamp = Date.now()) {
-    const CHAT_MESSAGE_TEMPLATE = `<div class="msg-chat msg-user" data-username="${username.toLowerCase()}"><time class="time" title="" data-unixtimestamp="${timestamp}"></time>  <a title="" class="user">${username}</a><span class="ctrl">: </span> <span class="text">${text}</span></div>`;
-    return fromHTMLString(CHAT_MESSAGE_TEMPLATE)[0].build();
+    const fullDate = formatTimestamp(timestamp, FULL_DATE_FORMAT);
+    const time = formatTimestamp(timestamp, TIME_FORMAT);
+    const elementString = `<div class="msg-chat msg-user" data-username="${username.toLowerCase()}"><time class="time" title="${fullDate}" data-unixtimestamp="${timestamp}">${time}</time>  <a title="" class="user">${username}</a><span class="ctrl">: </span> <span class="text">${text}</span></div>`;
+    const templateContainer = document.createElement('template');
+    templateContainer.innerHTML = elementString;
+    return templateContainer.content;
 }
 
 // INLINE RUSTLESEARCH
@@ -406,16 +451,12 @@ async function loadRustleLogs() {
     const messages = json.data.messages;
     messages.sort((a, b) => a.searchAfter < b.searchAfter);
     
-    const useExistingMessage = messageContainer.hasChildNodes();
-    let messageTemplate = useExistingMessage ? messageContainer.lastChild : null;
-    if (!messageTemplate) messageTemplate = buildTemplatedChatMessage(username, "");
-    else messageTemplate.remove(); // Remove from tree
+    const existingMessage = messageContainer.lastChild;
+    existingMessage?.remove();
     
     const messageEls = await Promise.all(messages.map(async message => {
-        const innerHTML = await REGEXES.renderChatMessage(message.text);
-        const messageEl = messageTemplate.cloneNode(true);
-        messageEl.querySelector('.text').innerHTML = innerHTML;
-        return messageEl;
+        const messageContent = await REGEXES.renderChatMessage(message.text);
+        return buildTemplatedChatMessage(username, messageContent, message.searchAfter);
     }));
 
     const relativeScroll = messageContainer.scrollHeight - messageContainer.scrollTop; 
@@ -427,9 +468,11 @@ async function loadRustleLogs() {
 
     if (!lastRequestTimestamp) {
         messageContainer.scrollTop = messageContainer.scrollHeight;
-        const currentEl = messageEls.find(el => el.textContent === messageTemplate.textContent);
-        if (currentEl) currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
-        else if (useExistingMessage) messageContainer.appendChild(messageTemplate);
+        if (existingMessage) {
+            const currentEl = messageEls.find(el => el.textContent === existingMessage.textContent);
+            if (currentEl) currentEl.scrollIntoView({ block: "nearest", inline: "nearest" });
+            else messageContainer.appendChild(existingMessage);
+        }
     } else {
         messageContainer.scrollTop = messageContainer.scrollHeight - relativeScroll;
     }
@@ -566,10 +609,9 @@ function applyDGGLayoutFix() {
 async function openMentionsPopup() {
     const mentionsButton = document.getElementById('dgg-tweaks-mentions-btn');
 
-    if (mentionsButton._tippy.state.isShown) {
-        return;
-    }
-    mentionsButton._tippy.setContent("<div class='dgg-tweaks-mentions-popup' style='padding: 8px 12px;'>Loading...</div>");
+    if (mentionsButton._tippy.state.isShown) return;
+    
+    mentionsButton._tippy.setContent(`<div class='dgg-tweaks-mentions-popup' style='padding: 8px 12px;'>Loading...</div>`);
     mentionsButton._tippy.show();
 
     const username = document.getElementById("chat-input-control").placeholder.split(' ')[2];
@@ -582,21 +624,19 @@ async function openMentionsPopup() {
     msgArr.sort((a, b) => a.date - b.date);
 
     async function processMessage(message) {
-        const messageEl = el('div', { classes: ['msg-chat', 'msg-user'] },
-            el('a', { classes: ['user'] }, message.nick),
-            el('span', { classes: ['ctrl'] }, ': '),
-            el('span', { classes: ['text'] }, fromHTMLString(await REGEXES.renderChatMessage(message.text)))
-        );
-        messages.push(messageEl);
+        const messageContent = await REGEXES.renderChatMessage(message.text);
+        messages.push(fromHTML(buildTemplatedChatMessage(message.nick, messageContent, message.date * 1000)));
     }
     var promises = []
     for (const message of msgArr) {
         promises.push(processMessage(message));
     }
     await Promise.allSettled(promises);
-
-    var popupContent = el('div', { classes: ['dgg-tweaks-mentions-popup'] }, ...messages).build();
-    if (messages.length) mentionsButton._tippy.setContent(popupContent.outerHTML);
+    
+    if (messages.length) {
+        var popupContent = el('div', { classes: ['dgg-tweaks-mentions-popup', settings['mentions-force-timestamps'] && 'pref-showtime'] }, ...messages).build();
+        mentionsButton._tippy.setContent(popupContent.outerHTML);
+    }
     else mentionsButton._tippy.setContent("<div class='dgg-tweaks-mentions-popup'>No mentions found</div>");
 }
 
@@ -650,6 +690,9 @@ async function onSettingsChanged() {
         document.body.style.setProperty('--link-size', isNaN(Number(settings['link-size'])) ? 0 : settings['link-size'] - 1);
         addLinkAggregationButton();
         addMentionsButton();
+        const userInfo = document.querySelector('#chat-user-info');
+        userInfo.classList.remove('pref-showtime');
+        if (settings['inline-rustlesearch'] && settings['inline-force-timestamps']) userInfo.classList.add('pref-showtime');
     }
 }
 
